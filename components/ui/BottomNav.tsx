@@ -54,7 +54,7 @@ interface BottomNavProps {
 export default function BottomNav({ active, onChange }: BottomNavProps) {
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0"
+      className="fixed bottom-0 left-0 right-0 shell-fixed"
       style={{
         background: 'rgba(8,15,30,0.94)',
         borderTop: '1px solid rgba(255,255,255,0.07)',

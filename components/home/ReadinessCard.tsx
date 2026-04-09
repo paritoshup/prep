@@ -20,7 +20,7 @@ export default function ReadinessCard({ score }: ReadinessCardProps) {
       {/* Score */}
       <div>
         <p className="font-body text-xs mb-2" style={{ color: '#7A8BAD' }}>Readiness Score</p>
-        <div className="flex items-baseline gap-1.5">
+        <div className="flex items-baseline gap-1.5 mb-1.5">
           <span
             className="font-display leading-none"
             style={{ fontSize: 22, fontWeight: 800, color: '#F0F4FF' }}
@@ -29,6 +29,9 @@ export default function ReadinessCard({ score }: ReadinessCardProps) {
           </span>
           <span className="font-body text-muted text-sm">/ 100</span>
         </div>
+        <p className="font-body" style={{ fontSize: 10, color: '#4A5A7A', lineHeight: 1.5 }}>
+          Reflects your drill scores, streaks, and daily consistency.
+        </p>
       </div>
 
       {/* Animated bar chart */}

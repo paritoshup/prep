@@ -124,7 +124,7 @@ export default function KeywordResult({ drill, keywords, voiceFeedback, onDone, 
       </motion.div>
 
       {/* Fixed bottom CTA */}
-      <div className="fixed left-0 right-0 px-4 z-50" style={{ bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }}>
+      <div className="fixed left-0 right-0 px-4 z-50 shell-fixed" style={{ bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }}>
         <div className="max-w-[390px] mx-auto">
           <motion.button
             whileTap={{ scale: 0.97 }}

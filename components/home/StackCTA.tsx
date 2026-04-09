@@ -60,8 +60,8 @@ export default function StackCTA({ drills }: StackCTAProps) {
     <>
       {/* Fixed CTA bar */}
       <div
-        className="fixed left-0 right-0 px-4 z-40"
-        style={{ bottom: 'calc(72px + env(safe-area-inset-bottom, 0px))' }}
+        className="fixed left-0 right-0 px-4 z-40 shell-fixed"
+        style={{ bottom: 'calc(84px + env(safe-area-inset-bottom, 0px))' }}
       >
         <div className="max-w-[390px] mx-auto">
           <motion.button
@@ -70,16 +70,16 @@ export default function StackCTA({ drills }: StackCTAProps) {
             onClick={() => { setSessions([]); setDrillIndex(0); }}
             className="w-full font-display font-bold text-white cursor-pointer"
             style={{
-              height: 52,
+              height: 42,
               background: 'linear-gradient(135deg, #4F6EF7 0%, #6B84FF 100%)',
               borderRadius: 100,
-              fontSize: 16,
+              fontSize: 13,
               fontWeight: 700,
               letterSpacing: '-0.01em',
-              boxShadow: '0 4px 24px rgba(79,110,247,0.35)',
+              boxShadow: '0 4px 20px rgba(79,110,247,0.3)',
             }}
           >
-            Start Today's Stack →
+            Start today's drill →
           </motion.button>
         </div>
       </div>

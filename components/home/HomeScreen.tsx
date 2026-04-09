@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getCurrentDrills } from '@/lib/drillBank';
 import { getUser, getCurrentDay, getCurrentReadinessScore } from '@/lib/storage';
-import RankBadge from '@/components/ui/RankBadge';
 import BottomNav, { type AppTab } from '@/components/ui/BottomNav';
 import DayCounter from './DayCounter';
 import ReadinessCard from './ReadinessCard';
@@ -24,6 +23,34 @@ function getGreeting(): string {
   return 'Good evening';
 }
 
+/* ─── New Read badge ────────────────────────────────────────────── */
+function NewReadBadge({ onClick }: { onClick: () => void }) {
+  return (
+    <motion.button
+      onClick={onClick}
+      className="cursor-pointer shrink-0"
+      whileTap={{ scale: 0.95 }}
+    >
+      <motion.div
+        animate={{ opacity: [0.75, 1, 0.75] }}
+        transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+        className="p-[1px] rounded-full"
+        style={{ background: 'linear-gradient(135deg, #4F6EF7 0%, #6B84FF 100%)' }}
+      >
+        <div className="rounded-full px-3 py-1 flex items-center gap-1.5" style={{ background: '#080F1E' }}>
+          <span
+            className="w-1.5 h-1.5 rounded-full shrink-0"
+            style={{ background: '#4F6EF7' }}
+          />
+          <span className="font-body font-medium tracking-wide" style={{ fontSize: 11, color: '#7B96FF' }}>
+            New read
+          </span>
+        </div>
+      </motion.div>
+    </motion.button>
+  );
+}
+
 /* ─── Today tab ─────────────────────────────────────────────────── */
 function TodayView({ onStartRapidFire }: { onStartRapidFire: () => void }) {
   const greeting = getGreeting();
@@ -32,6 +59,7 @@ function TodayView({ onStartRapidFire }: { onStartRapidFire: () => void }) {
   const currentDay = getCurrentDay();
   const totalDays = 30;
   const progress = Math.min(100, Math.round((currentDay / totalDays) * 100));
+  const [signalOpen, setSignalOpen] = useState(false);
 
   return (
     <main className="max-w-[390px] mx-auto w-full px-4 pt-14 pb-40 flex flex-col gap-5">
@@ -49,7 +77,7 @@ function TodayView({ onStartRapidFire }: { onStartRapidFire: () => void }) {
             {user?.name ?? 'You'}
           </h1>
         </div>
-        <RankBadge rank="Contender" />
+        <NewReadBadge onClick={() => setSignalOpen(true)} />
       </header>
 
       {/* Interview countdown */}
@@ -62,16 +90,13 @@ function TodayView({ onStartRapidFire }: { onStartRapidFire: () => void }) {
         progress={progress}
       />
 
-      {/* Daily Signal */}
-      <DailySignalCard />
-
       {/* Readiness card */}
       <ReadinessCard score={getCurrentReadinessScore()} />
 
       {/* Today's Stack */}
       <div className="flex items-center justify-between">
         <h2 className="font-display" style={{ fontSize: 16, fontWeight: 700, color: '#F0F4FF' }}>
-          Today's Stack
+          Today's Drills
         </h2>
         <span
           className="font-body text-xs rounded-full px-2.5 py-1"
@@ -81,14 +106,29 @@ function TodayView({ onStartRapidFire }: { onStartRapidFire: () => void }) {
         </span>
       </div>
 
-      <div className="flex flex-col gap-3">
+      {/* Drill journey */}
+      <div className="flex flex-col">
         {drills.map((drill, i) => (
-          <DrillCard key={drill.id} drill={drill} index={i} />
+          <div key={drill.id}>
+            <DrillCard drill={drill} index={i} />
+            {i < drills.length - 1 && (
+              <div style={{ paddingLeft: 31, paddingTop: 2, paddingBottom: 2 }}>
+                <div className="flex flex-col gap-[4px]" style={{ width: 2 }}>
+                  <div className="rounded-full" style={{ width: 2, height: 2, background: 'rgba(255,255,255,0.18)' }} />
+                  <div className="rounded-full" style={{ width: 2, height: 2, background: 'rgba(255,255,255,0.11)' }} />
+                  <div className="rounded-full" style={{ width: 2, height: 2, background: 'rgba(255,255,255,0.06)' }} />
+                </div>
+              </div>
+            )}
+          </div>
         ))}
       </div>
 
       {/* Rapid Fire */}
       <RapidFireSection onStart={onStartRapidFire} />
+
+      {/* Daily Signal sheet (no inline card) */}
+      <DailySignalCard open={signalOpen} onClose={() => setSignalOpen(false)} />
 
     </main>
   );
@@ -105,35 +145,17 @@ export default function HomeScreen() {
 
       <AnimatePresence mode="wait">
         {activeTab === 'today' && (
-          <motion.div
-            key="today"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
+          <motion.div key="today" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             <TodayView onStartRapidFire={() => setRapidFireOpen(true)} />
           </motion.div>
         )}
         {activeTab === 'progress' && (
-          <motion.div
-            key="progress"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
+          <motion.div key="progress" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             <ProgressTab />
           </motion.div>
         )}
         {activeTab === 'profile' && (
-          <motion.div
-            key="profile"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
+          <motion.div key="profile" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             <ProfileTab />
           </motion.div>
         )}

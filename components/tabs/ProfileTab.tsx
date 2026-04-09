@@ -13,13 +13,13 @@ const REMINDER_TIMES = [
   { label: 'Night',     value: '21:00', sub: '9:00 PM' },
 ];
 
-const BADGES = [
-  { label: 'First Drill',   earned: true,  icon: '⚡' },
-  { label: '7-Day Streak',  earned: true,  icon: '🔥' },
-  { label: 'Sharp Reader',  earned: true,  icon: '🎯' },
-  { label: '14-Day Streak', earned: false, icon: '💎' },
-  { label: 'Perfect Score', earned: false, icon: '🏆' },
-  { label: 'Signal Master', earned: false, icon: '📡' },
+const BADGE_DEFS = [
+  { id: 'first_drill', label: 'First Drill',   icon: '⚡', color: '#F6B84B', howTo: 'Complete your very first drill' },
+  { id: 'streak_7',   label: '7-Day Streak',  icon: '🔥', color: '#FB7185', howTo: 'Practice 7 days in a row' },
+  { id: 'sharp_read', label: 'Sharp Reader',  icon: '🎯', color: '#7B96FF', howTo: 'Open 5 Daily Signals' },
+  { id: 'streak_14',  label: '14-Day Streak', icon: '💎', color: '#C084FC', howTo: 'Build a 14-day streak' },
+  { id: 'perfect',    label: 'Perfect Score', icon: '🏆', color: '#4ADE80', howTo: 'Score 95 or higher on any drill' },
+  { id: 'signal_10',  label: 'Signal Master', icon: '📡', color: '#22D3EE', howTo: 'Read 10 Daily Signals' },
 ];
 
 /* ─── Edit sheet ─────────────────────────────────────────────────── */
@@ -116,6 +116,8 @@ export default function ProfileTab() {
   const [drillsDone, setDrillsDone] = useState(0);
   const [editSheet, setEditSheet] = useState<null | 'name' | 'company' | 'date' | 'reminder'>(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [badgeSheet, setBadgeSheet] = useState<string | null>(null);
+  const [badgesEarned, setBadgesEarned] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const u = getUser();
@@ -124,6 +126,14 @@ export default function ProfileTab() {
     setUser(u);
     setStreak(state.streak);
     setDrillsDone(today.drillsDone);
+    setBadgesEarned({
+      first_drill: state.history.some(d => d.sessions.length > 0),
+      streak_7:    state.streak >= 7,
+      sharp_read:  false,
+      streak_14:   state.streak >= 14,
+      perfect:     state.history.some(d => d.sessions.some(s => s.score >= 95)),
+      signal_10:   false,
+    });
   }, []);
 
   function updateUser(patch: Partial<UserProfile>) {
@@ -203,17 +213,44 @@ export default function ProfileTab() {
 
         {/* Badges */}
         <div>
-          <p className="font-body uppercase tracking-widest mb-3" style={{ fontSize: 9, color: '#7A8BAD', letterSpacing: '0.1em' }}>Badges</p>
+          <div className="flex items-baseline justify-between mb-3">
+            <p className="font-body uppercase tracking-widest" style={{ fontSize: 9, color: '#7A8BAD', letterSpacing: '0.1em' }}>Badges</p>
+            <p className="font-body" style={{ fontSize: 10, color: '#4A5A7A' }}>Tap to see how to earn</p>
+          </div>
           <div className="grid grid-cols-3 gap-3">
-            {BADGES.map((b, i) => (
-              <motion.div key={b.label} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.05 * i }}
-                className="rounded-2xl p-3 flex flex-col items-center gap-2"
-                style={{ background: b.earned ? 'rgba(15,32,64,0.8)' : 'rgba(15,32,64,0.3)', border: `1px solid ${b.earned ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)'}`, opacity: b.earned ? 1 : 0.4 }}
-              >
-                <span style={{ fontSize: 22, filter: b.earned ? 'none' : 'grayscale(1)' }}>{b.icon}</span>
-                <p className="font-body text-center leading-tight" style={{ fontSize: 10, color: b.earned ? '#B8C8E8' : '#4A5A7A' }}>{b.label}</p>
-              </motion.div>
-            ))}
+            {BADGE_DEFS.map((b, i) => {
+              const earned = badgesEarned[b.id];
+              return (
+                <motion.button
+                  key={b.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.05 * i }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setBadgeSheet(b.id)}
+                  className="rounded-2xl p-3 flex flex-col items-center gap-1.5 cursor-pointer relative"
+                  style={{
+                    background: earned ? 'rgba(15,32,64,0.85)' : 'rgba(15,32,64,0.35)',
+                    border: earned ? `1px solid ${b.color}25` : '1px solid rgba(255,255,255,0.05)',
+                  }}
+                >
+                  <span style={{ fontSize: 22, filter: earned ? 'none' : 'grayscale(1) blur(1px)', opacity: earned ? 1 : 0.2 }}>
+                    {b.icon}
+                  </span>
+                  {!earned && (
+                    <div className="absolute" style={{ top: '30%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                      <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                        <rect x="1.5" y="4.5" width="8" height="5.5" rx="1.2" stroke="#4A5A7A" strokeWidth="1.1" fill="none"/>
+                        <path d="M3.5 4.5V3A2 2 0 0 1 7.5 3v1.5" stroke="#4A5A7A" strokeWidth="1.1" strokeLinecap="round"/>
+                      </svg>
+                    </div>
+                  )}
+                  <p className="font-body text-center leading-tight" style={{ fontSize: 9, color: earned ? '#B8C8E8' : '#4A5A7A' }}>
+                    {b.label}
+                  </p>
+                </motion.button>
+              );
+            })}
           </div>
         </div>
 
@@ -300,6 +337,31 @@ export default function ProfileTab() {
       </BottomSheet>
       <BottomSheet open={editSheet === 'reminder'} onClose={() => setEditSheet(null)}>
         <ReminderSheet current={user.reminderTime} onSave={v => updateUser({ reminderTime: v })} onClose={() => setEditSheet(null)} />
+      </BottomSheet>
+
+      {/* Badge detail sheet */}
+      <BottomSheet open={!!badgeSheet} onClose={() => setBadgeSheet(null)}>
+        {(() => {
+          const b = BADGE_DEFS.find(x => x.id === badgeSheet);
+          if (!b) return null;
+          const earned = badgesEarned[b.id];
+          return (
+            <div className="flex flex-col items-center gap-4 pt-4 pb-6 text-center">
+              <span style={{ fontSize: 52, filter: earned ? 'none' : 'grayscale(1)', opacity: earned ? 1 : 0.3 }}>{b.icon}</span>
+              <div>
+                <h3 className="font-display font-bold mb-2" style={{ fontSize: 20, color: '#F0F4FF' }}>{b.label}</h3>
+                {earned ? (
+                  <p className="font-body" style={{ fontSize: 14, color: '#4ADE80' }}>You've earned this badge.</p>
+                ) : (
+                  <>
+                    <p className="font-body mb-2" style={{ fontSize: 11, color: '#7A8BAD', textTransform: 'uppercase', letterSpacing: '0.08em' }}>How to earn</p>
+                    <p className="font-display font-semibold" style={{ fontSize: 16, color: '#C8D8FF', lineHeight: 1.5 }}>{b.howTo}</p>
+                  </>
+                )}
+              </div>
+            </div>
+          );
+        })()}
       </BottomSheet>
     </>
   );

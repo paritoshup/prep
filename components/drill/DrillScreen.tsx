@@ -248,7 +248,7 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex flex-col"
+      className="fixed inset-0 z-50 flex flex-col shell-fixed"
       style={{ background: 'linear-gradient(160deg, #080F1E 0%, #0A1628 50%, #0D1E3A 100%)' }}
     >
       {/* Top bar — hidden when results are shown */}
@@ -371,7 +371,7 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
       </AnimatePresence>
 
       {(stage === 'ready' || stage === 'recording') && (
-        <div className="fixed left-0 right-0 px-4 z-40" style={{ bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }}>
+        <div className="fixed left-0 right-0 px-4 z-40 shell-fixed" style={{ bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }}>
           <div className="max-w-[390px] mx-auto">
             {stage === 'ready' && (
               <motion.button whileTap={{ scale: 0.97 }} onClick={startDrill} className="w-full font-display font-bold text-white cursor-pointer" style={{ height: 52, background: 'linear-gradient(135deg, #4F6EF7 0%, #6B84FF 100%)', borderRadius: 100, fontSize: 16, fontWeight: 700, boxShadow: '0 4px 24px rgba(79,110,247,0.35)' }}>
