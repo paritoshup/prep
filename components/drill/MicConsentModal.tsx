@@ -13,7 +13,7 @@ export default function MicConsentModal({ onAccept, onDecline }: MicConsentModal
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-end justify-center px-4 pb-8"
+      className="fixed inset-0 z-50 flex items-end justify-center px-4 pb-8 shell-fixed"
       style={{ background: 'rgba(8,15,30,0.85)', backdropFilter: 'blur(8px)' }}
     >
       <motion.div

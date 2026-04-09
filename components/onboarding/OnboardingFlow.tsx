@@ -371,7 +371,7 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col justify-end"
+      className="fixed inset-0 z-50 flex flex-col justify-end shell-fixed"
       style={{ background: 'linear-gradient(160deg, #080F1E 0%, #0A1628 50%, #0D1E3A 100%)' }}
     >
       {/* Progress dots */}

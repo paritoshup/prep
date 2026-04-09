@@ -72,7 +72,7 @@ function ResultsScreen({
       </button>
 
       {/* Fixed CTA */}
-      <div className="fixed left-0 right-0 px-4 z-50" style={{ bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }}>
+      <div className="fixed left-0 right-0 px-4 z-50 shell-fixed" style={{ bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }}>
         <div className="max-w-[390px] mx-auto">
           <motion.button
             whileTap={{ scale: 0.97 }}
@@ -133,7 +133,7 @@ export default function RapidFireScreen({ onClose }: { onClose: () => void }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 40 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className="fixed inset-0 z-50 flex flex-col"
+      className="fixed inset-0 z-50 flex flex-col shell-fixed"
       style={{ background: 'linear-gradient(160deg, #080F1E 0%, #0A1628 50%, #0D1E3A 100%)' }}
     >
       {/* Top bar */}

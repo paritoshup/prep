@@ -24,7 +24,7 @@ export default function StackComplete({ sessions, onClose }: StackCompleteProps)
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex flex-col overflow-y-auto"
+      className="fixed inset-0 z-50 flex flex-col overflow-y-auto shell-fixed"
       style={{ background: 'linear-gradient(160deg, #080F1E 0%, #0A1628 50%, #0D1E3A 100%)' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -133,7 +133,7 @@ export default function StackComplete({ sessions, onClose }: StackCompleteProps)
 
       {/* Fixed bottom CTA */}
       <div
-        className="fixed left-0 right-0 px-5 z-50"
+        className="fixed left-0 right-0 px-5 z-50 shell-fixed"
         style={{ bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }}
       >
         <div className="max-w-[390px] mx-auto">
