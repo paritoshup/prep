@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { userProfile } from '@/lib/mockData';
 import { getCurrentDrills } from '@/lib/drillBank';
+import { getUser, getCurrentDay, getCurrentReadinessScore } from '@/lib/storage';
 import RankBadge from '@/components/ui/RankBadge';
 import BottomNav, { type AppTab } from '@/components/ui/BottomNav';
 import DayCounter from './DayCounter';
@@ -28,6 +28,10 @@ function getGreeting(): string {
 function TodayView({ onStartRapidFire }: { onStartRapidFire: () => void }) {
   const greeting = getGreeting();
   const drills = getCurrentDrills();
+  const user = getUser();
+  const currentDay = getCurrentDay();
+  const totalDays = 30;
+  const progress = Math.min(100, Math.round((currentDay / totalDays) * 100));
 
   return (
     <main className="max-w-[390px] mx-auto w-full px-4 pt-14 pb-40 flex flex-col gap-5">
@@ -42,10 +46,10 @@ function TodayView({ onStartRapidFire }: { onStartRapidFire: () => void }) {
             className="font-display leading-tight"
             style={{ fontSize: 20, fontWeight: 700, color: '#F0F4FF' }}
           >
-            {userProfile.name}
+            {user?.name ?? 'You'}
           </h1>
         </div>
-        <RankBadge rank={userProfile.rank} />
+        <RankBadge rank="Contender" />
       </header>
 
       {/* Interview countdown */}
@@ -53,16 +57,16 @@ function TodayView({ onStartRapidFire }: { onStartRapidFire: () => void }) {
 
       {/* Day counter */}
       <DayCounter
-        day={userProfile.day}
-        totalDays={userProfile.totalDays}
-        progress={userProfile.dayProgress}
+        day={currentDay}
+        totalDays={totalDays}
+        progress={progress}
       />
 
       {/* Daily Signal */}
       <DailySignalCard />
 
       {/* Readiness card */}
-      <ReadinessCard score={userProfile.readinessScore} />
+      <ReadinessCard score={getCurrentReadinessScore()} />
 
       {/* Today's Stack */}
       <div className="flex items-center justify-between">

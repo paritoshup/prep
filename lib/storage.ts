@@ -7,6 +7,7 @@ export interface UserProfile {
   interviewDate: string;    // ISO date string, optional
   reminderTime: string;     // "HH:MM" 24h format
   onboardingComplete: boolean;
+  joinedAt: string;         // ISO date string — set once on onboarding complete
 }
 
 export interface DrillSession {
@@ -192,6 +193,21 @@ export function getCurrentReadinessScore(): number {
   const history = getReadinessHistory();
   if (history.length === 0) return 0;
   return history[history.length - 1].score;
+}
+
+// ─── Day counter ──────────────────────────────────────────────────────────────
+
+export function getCurrentDay(): number {
+  const user = getUser();
+  if (!user) return 1;
+  // Backfill joinedAt for users who onboarded before this field existed
+  if (!user.joinedAt) {
+    const patched = { ...user, joinedAt: new Date().toISOString() };
+    saveUser(patched);
+    return 1;
+  }
+  const diff = Date.now() - new Date(user.joinedAt).getTime();
+  return Math.max(1, Math.floor(diff / 86400000) + 1);
 }
 
 // ─── Days until interview ─────────────────────────────────────────────────────

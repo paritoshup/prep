@@ -338,6 +338,7 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
         interviewDate: updated.interviewDate ?? '',
         reminderTime: updated.reminderTime ?? '08:00',
         onboardingComplete: true,
+        joinedAt: new Date().toISOString(),
       };
       saveUser(user);
 
