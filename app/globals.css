@@ -39,6 +39,12 @@
 *::after {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
+  scrollbar-width: none;      /* Firefox */
+  -ms-overflow-style: none;   /* IE/Edge */
+}
+
+*::-webkit-scrollbar {
+  display: none;              /* Chrome/Safari/WebKit */
 }
 
 html {
@@ -83,10 +89,15 @@ body {
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
-    /* transform creates a new containing block for position:fixed children
-       so all fixed elements are confined to this 390px shell */
-    transform: translateZ(0);
     box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 32px 80px rgba(0,0,0,0.6);
     background: linear-gradient(160deg, #080F1E 0%, #0A1628 50%, #0D1E3A 100%);
+  }
+
+  /* Pin any position:fixed element to the 390px shell column.
+     Apply .shell-fixed to every component that uses position:fixed. */
+  .shell-fixed {
+    left: calc(50% - 195px) !important;
+    right: calc(50% - 195px) !important;
+    width: 390px !important;
   }
 }
