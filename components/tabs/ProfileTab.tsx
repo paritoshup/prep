@@ -115,6 +115,7 @@ export default function ProfileTab() {
   const [streak, setStreak] = useState(0);
   const [drillsDone, setDrillsDone] = useState(0);
   const [editSheet, setEditSheet] = useState<null | 'name' | 'company' | 'date' | 'reminder'>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
 
   useEffect(() => {
     const u = getUser();
@@ -243,18 +244,47 @@ export default function ProfileTab() {
         </div>
 
         {/* Reset */}
-        <button
-          onClick={() => {
-            if (confirm('Reset all app data? This clears your progress and restarts onboarding.')) {
-              localStorage.removeItem('prep_app_v1');
-              window.location.reload();
-            }
-          }}
-          className="w-full font-body cursor-pointer py-3 text-center"
-          style={{ fontSize: 12, color: '#FB7185', background: 'rgba(251,113,133,0.06)', border: '1px solid rgba(251,113,133,0.15)', borderRadius: 16 }}
-        >
-          Reset app data
-        </button>
+        {!confirmReset ? (
+          <button
+            onClick={() => setConfirmReset(true)}
+            className="w-full font-body cursor-pointer py-3 text-center"
+            style={{ fontSize: 12, color: '#FB7185', background: 'rgba(251,113,133,0.06)', border: '1px solid rgba(251,113,133,0.15)', borderRadius: 16 }}
+          >
+            Reset app data
+          </button>
+        ) : (
+          <div className="flex flex-col gap-2">
+            <p className="font-body text-center" style={{ fontSize: 12, color: '#FB7185' }}>
+              This will clear all progress and restart onboarding.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  localStorage.clear();
+                  // Unregister service worker so cache doesn't restore stale state
+                  if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(regs => {
+                      regs.forEach(r => r.unregister());
+                    }).finally(() => { window.location.href = '/'; });
+                  } else {
+                    window.location.href = '/';
+                  }
+                }}
+                className="flex-1 font-display font-bold cursor-pointer py-3"
+                style={{ fontSize: 13, color: '#fff', background: '#FB7185', borderRadius: 100 }}
+              >
+                Yes, reset
+              </button>
+              <button
+                onClick={() => setConfirmReset(false)}
+                className="flex-1 font-body cursor-pointer py-3"
+                style={{ fontSize: 13, color: '#7A8BAD', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 100 }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
 
       </div>
 
