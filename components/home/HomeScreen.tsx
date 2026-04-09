@@ -12,6 +12,7 @@ import DrillCard from './DrillCard';
 import StackCTA from './StackCTA';
 import DailySignalCard from './DailySignalCard';
 import RapidFireSection from './RapidFireSection';
+import RapidFireScreen from './RapidFireScreen';
 import InterviewCountdown from './InterviewCountdown';
 import ProgressTab from '@/components/tabs/ProgressTab';
 import ProfileTab from '@/components/tabs/ProfileTab';
@@ -24,7 +25,7 @@ function getGreeting(): string {
 }
 
 /* ─── Today tab ─────────────────────────────────────────────────── */
-function TodayView() {
+function TodayView({ onStartRapidFire }: { onStartRapidFire: () => void }) {
   const greeting = getGreeting();
   const drills = getCurrentDrills();
 
@@ -83,7 +84,7 @@ function TodayView() {
       </div>
 
       {/* Rapid Fire */}
-      <RapidFireSection />
+      <RapidFireSection onStart={onStartRapidFire} />
 
     </main>
   );
@@ -92,6 +93,7 @@ function TodayView() {
 /* ─── Root component ─────────────────────────────────────────────── */
 export default function HomeScreen() {
   const [activeTab, setActiveTab] = useState<AppTab>('today');
+  const [rapidFireOpen, setRapidFireOpen] = useState(false);
   const drills = getCurrentDrills();
 
   return (
@@ -106,7 +108,7 @@ export default function HomeScreen() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            <TodayView />
+            <TodayView onStartRapidFire={() => setRapidFireOpen(true)} />
           </motion.div>
         )}
         {activeTab === 'progress' && (
@@ -136,6 +138,13 @@ export default function HomeScreen() {
       {/* Fixed bottom: CTA (today only) + Nav */}
       {activeTab === 'today' && <StackCTA drills={drills} />}
       <BottomNav active={activeTab} onChange={setActiveTab} />
+
+      {/* Rapid Fire full-screen overlay */}
+      <AnimatePresence>
+        {rapidFireOpen && (
+          <RapidFireScreen onClose={() => setRapidFireOpen(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

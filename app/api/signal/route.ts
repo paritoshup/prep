@@ -113,44 +113,71 @@ export async function GET() {
 
   const top = ranked[0];
 
+  const { gist, summary } = generateSummary(top.title, top.source);
+
   return NextResponse.json({
     item: {
       source: top.source,
       headline: top.title,
       tag: top.tag,
       link: top.link,
-      summary: generateSummary(top.title, top.source),
+      gist,
+      summary,
     },
     live: true,
   });
 }
 
-function generateSummary(title: string, source: string): string {
+function generateSummary(title: string, source: string): { gist: string; summary: string } {
   const lower = title.toLowerCase();
 
   if (lower.includes('agent') || lower.includes('agentic')) {
-    return "Autonomous agents are changing the product design brief entirely — users set goals, not tasks. Prepare to speak about how you design for outcomes, surface agent status, and handle failure states gracefully in an AI-first world.";
+    return {
+      gist: "AI agents don't just answer questions — they take actions. That changes what 'user control' means in a product.",
+      summary: "Autonomous agents are rewriting the design brief entirely. Users set goals, not tasks — which means your interface needs to communicate intent, status, and failure in ways current patterns weren't built for. In a design round, be ready to walk through how you'd design an agent-powered feature: what does the user see while it's working? What happens when it gets it wrong? How do you keep users in control without burdening them with every decision? Companies building in this space are actively hiring for this exact thinking.",
+    };
   }
   if (lower.includes('figma') || lower.includes('design tool')) {
-    return "Design tooling is evolving faster than workflows. In a design round, you should be able to speak to how you adapt your process as AI enters your toolkit — from research synthesis to rapid prototyping and handoff.";
+    return {
+      gist: "Your design tools are changing faster than your process. Knowing why matters more than knowing the shortcuts.",
+      summary: "Figma and its competitors are racing to embed AI into every step of the design workflow — from research synthesis to auto-layout, component generation, and handoff. The risk isn't that tools get smarter. It's that designers who can't articulate when to use AI and when not to will be outpaced by those who can. In your interview, don't just mention Figma — speak to how your process adapts when the tools change, and what you keep doing manually and why.",
+    };
   }
   if (lower.includes('openai') || lower.includes('gpt') || lower.includes('chatgpt')) {
-    return "Foundation model updates ripple through every product that uses them. As a designer, understanding capability changes — and what they mean for your users' expectations — is becoming a core competency.";
+    return {
+      gist: "Every model update reshapes what users expect your product to be able to do — whether you use AI or not.",
+      summary: "OpenAI releases aren't just developer news — they shift the baseline of what users consider 'normal.' When GPT gets better at writing, users expect every text input to have AI assist. When vision improves, every camera interaction is up for reinvention. As a designer or PM, your job is to track capability changes and ask: does this obsolete a pattern I rely on? Does it unlock something I couldn't build six months ago? Being fluent in model progress is now part of product literacy.",
+    };
   }
   if (lower.includes('apple') || lower.includes('siri') || lower.includes('ios')) {
-    return "Platform-level AI shifts what users expect by default. Designing for Apple platforms means understanding how system intelligence changes interaction patterns, defaults, and the baseline users compare your product to.";
+    return {
+      gist: "Apple's AI moves set the floor for what 350 million iPhone users will expect from every app.",
+      summary: "When Apple ships an AI feature at the OS level, it becomes the baseline. Siri getting smarter, on-device ML improving, new API surfaces — these aren't just platform features. They're new expectations your users bring to every app on their phone. In an interview, especially for consumer or mobile-first products, you should be able to speak to how platform-level intelligence changes your interaction model. What do you now get for free? What should you stop doing yourself?",
+    };
   }
   if (lower.includes('google') || lower.includes('gemini') || lower.includes('deepmind')) {
-    return "Google's AI moves set the pace for search, productivity, and ambient computing. Understanding these shifts is critical when designing products that live alongside or compete with Google's ecosystem.";
+    return {
+      gist: "Google is rebuilding search, productivity, and ambient computing around AI — which reshapes the context your product lives in.",
+      summary: "Google's AI strategy isn't one product — it's a platform shift. Gemini embedded in Search, Docs, Gmail, Android. When Google changes how people find, create, and communicate, it changes the context your product competes in. A designer or PM who understands this can ask sharper questions: Are my users coming from Search differently now? Does AI in Gmail change how they expect to interact with notifications? Does Gemini in Android change what 'ambient' means for my app? These are the kinds of questions that signal senior thinking.",
+    };
   }
   if (lower.includes('startup') || lower.includes('funding') || lower.includes('raise')) {
-    return "Where capital flows signals where the industry is heading. Being aware of the AI product landscape — who's building what and why — makes you a sharper product thinker in any interview room.";
+    return {
+      gist: "Where money flows in AI right now tells you what problems the industry has decided are worth solving.",
+      summary: "Funding rounds aren't gossip — they're a signal about where the industry is placing bets. If a category is attracting capital, it means smart people think there's a real problem to solve and real customers who'll pay. Staying aware of the funding landscape makes you a sharper product thinker: you can speak to competitive dynamics, where incumbents are vulnerable, and what the next wave of products will look like. In an interview, being able to reference what's getting funded — and what it means for your space — shows you think beyond your current role.",
+    };
   }
   if (lower.includes('ux') || lower.includes('user experience') || lower.includes('interface')) {
-    return "UX is the battleground where AI capabilities become actual products. Your ability to translate complex model behaviour into clear, trustworthy, and useful interfaces is exactly what companies are hiring for right now.";
+    return {
+      gist: "The craft of UX is being stress-tested by AI — and that's exactly the conversation your next interviewer wants to have.",
+      summary: "AI doesn't replace UX — it makes it harder. When the system is probabilistic, outputs vary, and errors are subtle, the bar for clear communication rises dramatically. Designing for trust, for recoverable mistakes, for variable output quality — these are genuinely hard problems that require strong craft. The companies worth working for know this. Be ready to speak about a moment where you had to design for ambiguity, uncertainty, or a product that didn't always do what the user expected.",
+    };
   }
 
-  return `${source} is covering this because it's reshaping how products get built. Knowing the signal — and being able to connect it to your design decisions — separates candidates who think about craft from those who think about industry.`;
+  return {
+    gist: `${source} is covering this because it's reshaping how products get built — and the designers who understand it will have an edge.`,
+    summary: "Industry signals like this one matter because they shape what your interviewers are thinking about. The best candidates don't just know their craft — they know the landscape their work lives in. Be ready to connect what's happening in the industry to a real product decision: how does this change what you'd build, how you'd prioritise, or what you'd push back on?",
+  };
 }
 
 const FALLBACK = {
@@ -158,5 +185,6 @@ const FALLBACK = {
   headline: "AI assistants are getting better at knowing when to stay quiet.",
   tag: 'AI · Design',
   link: 'https://www.theverge.com/ai-artificial-intelligence',
-  summary: "One of the hardest design problems in AI products isn't what the AI says — it's when it doesn't say anything. Knowing when to surface information vs. stay out of the way is a product judgment call, not an ML one. Be ready to speak to this.",
+  gist: "The hardest AI design problem isn't what the system says — it's knowing when it should say nothing at all.",
+  summary: "Silence is a design decision. In AI products, surfacing information at the wrong moment is as damaging as surfacing the wrong information. Knowing when to intervene versus stay out of the way is a product judgment call, not an ML one — and it requires a clear mental model of user attention, trust, and context. In your next interview, be ready to speak about a moment where you chose to reduce AI visibility in a product, and why that made the experience better.",
 };

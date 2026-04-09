@@ -86,6 +86,7 @@ export interface VoiceFeedback {
   score: number;
   wpm: number;
   fillerCount: number;
+  coachingLine?: string;
 }
 
 function parseDuration(d: string): number {
@@ -134,9 +135,21 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
   }, []);
 
   function handleConsentAccept() {
-    localStorage.setItem('prep_mic_consent', 'true');
-    setMicEnabled(true);
-    setStage('ready');
+    // Request browser mic permission immediately so user sees the native prompt now
+    navigator.mediaDevices?.getUserMedia({ audio: true })
+      .then(stream => {
+        // Stop tracks right away — we just needed the permission grant
+        stream.getTracks().forEach(t => t.stop());
+        localStorage.setItem('prep_mic_consent', 'true');
+        setMicEnabled(true);
+        setStage('ready');
+      })
+      .catch(() => {
+        // Browser denied — fall back to no-mic mode
+        localStorage.setItem('prep_mic_consent', 'false');
+        setMicEnabled(false);
+        setStage('ready');
+      });
   }
 
   function handleConsentDecline() {
@@ -195,12 +208,37 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
 
   useEffect(() => {
     if (stage === 'done') {
-      const kw = extractKeywords(transcript);
-      const feedback = analyseTranscript(transcript, elapsedRef.current || totalSeconds);
-      setKeywords(kw);
-      setVoiceFeedback(feedback);
-      // Haptic
       if (navigator.vibrate) navigator.vibrate(100);
+      const duration = elapsedRef.current || totalSeconds;
+
+      fetch('/api/drill-feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          transcript,
+          drillName: drill.name,
+          drillType: drill.type,
+          durationSeconds: duration,
+        }),
+      })
+        .then(r => r.json())
+        .then(data => {
+          setKeywords(data.keywords?.length ? data.keywords : extractKeywords(transcript));
+          setVoiceFeedback({
+            feedback: data.feedback ?? [],
+            score: data.score ?? 60,
+            wpm: data.wpm ?? 0,
+            fillerCount: data.fillerCount ?? 0,
+            coachingLine: data.coachingLine ?? '',
+          });
+        })
+        .catch(() => {
+          // Fallback to local analysis
+          const kw = extractKeywords(transcript);
+          const feedback = analyseTranscript(transcript, duration);
+          setKeywords(kw);
+          setVoiceFeedback(feedback);
+        });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage]);
@@ -213,30 +251,32 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
       className="fixed inset-0 z-50 flex flex-col"
       style={{ background: 'linear-gradient(160deg, #080F1E 0%, #0A1628 50%, #0D1E3A 100%)' }}
     >
-      {/* Top bar */}
-      <div className="flex items-center justify-between px-4 pt-14 pb-4 max-w-[390px] mx-auto w-full">
-        <div>
-          <p className="font-body uppercase tracking-widest" style={{ fontSize: 9, color: '#7A8BAD', letterSpacing: '0.1em' }}>
-            {drill.type}
-          </p>
-          <p className="font-body" style={{ fontSize: 11, color: '#4F6EF7' }}>
-            Drill {drillNumber} of {totalDrills}
-          </p>
+      {/* Top bar — hidden when results are shown */}
+      {stage !== 'done' && (
+        <div className="flex items-center justify-between px-4 pt-14 pb-4 max-w-[390px] mx-auto w-full">
+          <div>
+            <p className="font-body uppercase tracking-widest" style={{ fontSize: 9, color: '#7A8BAD', letterSpacing: '0.1em' }}>
+              {drill.type}
+            </p>
+            <p className="font-body" style={{ fontSize: 11, color: '#4F6EF7' }}>
+              Drill {drillNumber} of {totalDrills}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer"
+            style={{ background: 'rgba(255,255,255,0.06)' }}
+            aria-label="Close drill"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 2l10 10M12 2L2 12" stroke="#7A8BAD" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+          </button>
         </div>
-        <button
-          onClick={onClose}
-          className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer"
-          style={{ background: 'rgba(255,255,255,0.06)' }}
-          aria-label="Close drill"
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M2 2l10 10M12 2L2 12" stroke="#7A8BAD" strokeWidth="1.8" strokeLinecap="round" />
-          </svg>
-        </button>
-      </div>
+      )}
 
       {/* Main content */}
-      <div className="flex-1 px-4 max-w-[390px] mx-auto w-full overflow-y-auto pb-40">
+      <div className={`flex-1 px-4 max-w-[390px] mx-auto w-full overflow-y-auto ${stage === 'done' ? 'pt-14 pb-40' : 'pb-40'}`}>
         <AnimatePresence mode="wait">
 
           {stage === 'ready' && (
@@ -255,15 +295,31 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
                   {drill.meta.duration} · {drill.meta.mode}
                 </p>
               </div>
-              {micEnabled && (
+              {micEnabled ? (
                 <div className="rounded-2xl p-3 flex items-center gap-2.5" style={{ background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.15)' }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="9" y="2" width="6" height="11" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><line x1="12" y1="19" x2="12" y2="22" /><line x1="8" y1="22" x2="16" y2="22" />
                   </svg>
                   <p className="font-body" style={{ fontSize: 12, color: '#4ADE80' }}>
-                    Mic on — keywords + voice feedback enabled
+                    Mic on — AI voice feedback enabled
                   </p>
                 </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('prep_mic_consent');
+                    setStage('consent');
+                  }}
+                  className="rounded-2xl p-3 flex items-center gap-2.5 w-full cursor-pointer text-left"
+                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7A8BAD" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="9" y="2" width="6" height="11" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><line x1="12" y1="19" x2="12" y2="22" /><line x1="8" y1="22" x2="16" y2="22" />
+                  </svg>
+                  <p className="font-body" style={{ fontSize: 12, color: '#7A8BAD' }}>
+                    Mic off — tap to enable AI feedback
+                  </p>
+                </button>
               )}
             </motion.div>
           )}

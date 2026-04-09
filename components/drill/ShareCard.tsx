@@ -1,237 +1,278 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { Drill } from '@/lib/mockData';
 
 interface ShareCardProps {
   drill: Drill;
   keywords: string[];
+  score: number;
   userName: string;
   rank: string;
 }
 
-/* ─── The visual card (also rendered to canvas) ──────────────────── */
-function CardVisual({
-  drill,
-  keywords,
-  userName,
-  rank,
-}: ShareCardProps) {
-  const score = Math.min(100, 60 + keywords.length * 8);
-
-  return (
-    <div
-      style={{
-        width: 320,
-        background: 'linear-gradient(145deg, #0A1628 0%, #0D1E3A 60%, #0F2744 100%)',
-        borderRadius: 24,
-        padding: 24,
-        border: '1px solid rgba(79,110,247,0.3)',
-        fontFamily: 'system-ui, sans-serif',
-      }}
-    >
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
-        <div>
-          <p style={{ fontSize: 9, color: '#7A8BAD', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
-            Prep · Interview Fitness
-          </p>
-          <p style={{ fontSize: 16, fontWeight: 700, color: '#F0F4FF', lineHeight: 1.2 }}>
-            {userName}
-          </p>
-        </div>
-        <div
-          style={{
-            background: 'linear-gradient(135deg, #F59E0B, #EF4444)',
-            borderRadius: 100,
-            padding: '1px',
-          }}
-        >
-          <div
-            style={{
-              background: '#080F1E',
-              borderRadius: 100,
-              padding: '4px 10px',
-            }}
-          >
-            <span style={{ fontSize: 10, color: '#F59E0B', fontWeight: 600 }}>{rank}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Score */}
-      <div
-        style={{
-          background: 'rgba(79,110,247,0.1)',
-          border: '1px solid rgba(79,110,247,0.2)',
-          borderRadius: 16,
-          padding: '14px 16px',
-          marginBottom: 16,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <div>
-          <p style={{ fontSize: 9, color: '#7A8BAD', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
-            Drill Score
-          </p>
-          <p style={{ fontSize: 32, fontWeight: 800, color: '#F0F4FF', lineHeight: 1 }}>
-            {score}<span style={{ fontSize: 16, color: '#7A8BAD' }}>/100</span>
-          </p>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <p style={{ fontSize: 9, color: '#7A8BAD', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
-            Drill
-          </p>
-          <p style={{ fontSize: 11, color: '#7B96FF', fontWeight: 600, maxWidth: 120, textAlign: 'right', lineHeight: 1.3 }}>
-            {drill.type}
-          </p>
-        </div>
-      </div>
-
-      {/* Keywords */}
-      {keywords.length > 0 && (
-        <div style={{ marginBottom: 16 }}>
-          <p style={{ fontSize: 9, color: '#7A8BAD', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
-            Keywords detected
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {keywords.map((w, i) => (
-              <span
-                key={i}
-                style={{
-                  background: 'rgba(255,255,255,0.07)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 100,
-                  padding: '4px 10px',
-                  fontSize: 11,
-                  color: '#F0F4FF',
-                  fontWeight: 600,
-                }}
-              >
-                {w}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* CTA */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #4F6EF7, #6B84FF)',
-          borderRadius: 100,
-          padding: '10px 16px',
-          textAlign: 'center',
-        }}
-      >
-        <p style={{ fontSize: 12, color: '#fff', fontWeight: 700 }}>
-          Can you beat this? Try Prep →
-        </p>
-      </div>
-
-      {/* Watermark */}
-      <p style={{ fontSize: 9, color: '#4A5A7A', textAlign: 'center', marginTop: 12 }}>
-        prep.app · Interview Fitness
-      </p>
-    </div>
-  );
+function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
 }
 
-/* ─── Share Card wrapper ─────────────────────────────────────────── */
-export default function ShareCard({ drill, keywords, userName, rank }: ShareCardProps) {
-  const cardRef = useRef<HTMLDivElement>(null);
+async function generateCardBlob(
+  userName: string,
+  rank: string,
+  score: number,
+  drillType: string,
+  keywords: string[],
+): Promise<Blob> {
+  const W = 640;
+  const H = 440;
+  const canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d')!;
+
+  // Background gradient
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#0A1628');
+  bg.addColorStop(0.6, '#0D1E3A');
+  bg.addColorStop(1, '#0F2744');
+  roundRect(ctx, 0, 0, W, H, 48);
+  ctx.fillStyle = bg;
+  ctx.fill();
+
+  // Border
+  roundRect(ctx, 1.5, 1.5, W - 3, H - 3, 47);
+  ctx.strokeStyle = 'rgba(79,110,247,0.35)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // App label
+  ctx.font = '500 22px -apple-system, system-ui, sans-serif';
+  ctx.fillStyle = '#7A8BAD';
+  ctx.fillText('PREP · INTERVIEW FITNESS', 48, 70);
+
+  // User name
+  ctx.font = 'bold 52px -apple-system, system-ui, sans-serif';
+  ctx.fillStyle = '#F0F4FF';
+  ctx.fillText(userName, 48, 136);
+
+  // Rank pill
+  const rankText = rank.toUpperCase();
+  ctx.font = '600 20px -apple-system, system-ui, sans-serif';
+  const rankW = ctx.measureText(rankText).width + 32;
+  roundRect(ctx, W - 48 - rankW, 44, rankW, 40, 20);
+  ctx.fillStyle = 'rgba(245,158,11,0.15)';
+  ctx.fill();
+  roundRect(ctx, W - 48 - rankW, 44, rankW, 40, 20);
+  ctx.strokeStyle = 'rgba(245,158,11,0.5)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.fillStyle = '#F59E0B';
+  ctx.fillText(rankText, W - 48 - rankW + 16, 71);
+
+  // Score card
+  roundRect(ctx, 48, 160, W - 96, 100, 24);
+  ctx.fillStyle = 'rgba(79,110,247,0.1)';
+  ctx.fill();
+  roundRect(ctx, 48, 160, W - 96, 100, 24);
+  ctx.strokeStyle = 'rgba(79,110,247,0.25)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Score label
+  ctx.font = '500 18px -apple-system, system-ui, sans-serif';
+  ctx.fillStyle = '#7A8BAD';
+  ctx.fillText('DRILL SCORE', 72, 192);
+
+  // Score number
+  const scoreColor = score >= 80 ? '#4ADE80' : score >= 60 ? '#F6B84B' : '#FB7185';
+  ctx.font = 'bold 64px -apple-system, system-ui, sans-serif';
+  ctx.fillStyle = scoreColor;
+  ctx.fillText(`${score}`, 72, 248);
+  ctx.font = '500 28px -apple-system, system-ui, sans-serif';
+  ctx.fillStyle = '#7A8BAD';
+  ctx.fillText('/100', 72 + ctx.measureText(`${score}`).width + 6, 248);
+
+  // Drill type
+  ctx.font = '600 18px -apple-system, system-ui, sans-serif';
+  ctx.fillStyle = '#7A8BAD';
+  ctx.textAlign = 'right';
+  ctx.fillText('DRILL', W - 72, 192);
+  ctx.font = 'bold 20px -apple-system, system-ui, sans-serif';
+  ctx.fillStyle = '#7B96FF';
+  ctx.fillText(drillType, W - 72, 218);
+  ctx.textAlign = 'left';
+
+  // Keywords
+  if (keywords.length > 0) {
+    let kx = 48;
+    const ky = 292;
+    ctx.font = '600 18px -apple-system, system-ui, sans-serif';
+    for (const kw of keywords.slice(0, 4)) {
+      const tw = ctx.measureText(kw).width;
+      const pw = tw + 24;
+      if (kx + pw > W - 48) break;
+      roundRect(ctx, kx, ky, pw, 36, 18);
+      ctx.fillStyle = 'rgba(255,255,255,0.07)';
+      ctx.fill();
+      roundRect(ctx, kx, ky, pw, 36, 18);
+      ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.fillStyle = '#F0F4FF';
+      ctx.fillText(kw, kx + 12, ky + 24);
+      kx += pw + 10;
+    }
+  }
+
+  // CTA bar
+  roundRect(ctx, 48, 352, W - 96, 52, 26);
+  const ctaBg = ctx.createLinearGradient(48, 0, W - 48, 0);
+  ctaBg.addColorStop(0, '#4F6EF7');
+  ctaBg.addColorStop(1, '#6B84FF');
+  ctx.fillStyle = ctaBg;
+  ctx.fill();
+  ctx.font = 'bold 22px -apple-system, system-ui, sans-serif';
+  ctx.fillStyle = '#ffffff';
+  ctx.textAlign = 'center';
+  ctx.fillText('Can you beat this? Try Prep →', W / 2, 386);
+  ctx.textAlign = 'left';
+
+  // Watermark
+  ctx.font = '400 16px -apple-system, system-ui, sans-serif';
+  ctx.fillStyle = '#4A5A7A';
+  ctx.textAlign = 'center';
+  ctx.fillText('prep.app · Interview Fitness', W / 2, 428);
+  ctx.textAlign = 'left';
+
+  return new Promise(resolve => canvas.toBlob(b => resolve(b!), 'image/png'));
+}
+
+export default function ShareCard({ drill, keywords, score, userName, rank }: ShareCardProps) {
   const [downloading, setDownloading] = useState(false);
   const [sharing, setSharing] = useState(false);
 
   async function handleDownload() {
-    if (!cardRef.current || downloading) return;
+    if (downloading) return;
     setDownloading(true);
     try {
-      const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(cardRef.current, {
-        backgroundColor: null,
-        scale: 2,
-        useCORS: true,
-      });
-      const link = document.createElement('a');
-      link.download = `prep-score-${userName.toLowerCase()}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    } catch (e) {
-      console.error(e);
+      const blob = await generateCardBlob(userName, rank, score, drill.type, keywords);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `prep-${userName.toLowerCase().replace(/\s/g, '-')}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
     } finally {
       setDownloading(false);
     }
   }
 
   async function handleShare() {
-    if (!cardRef.current || sharing) return;
+    if (sharing) return;
     setSharing(true);
     try {
-      const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(cardRef.current, {
-        backgroundColor: null,
-        scale: 2,
-        useCORS: true,
-      });
+      const blob = await generateCardBlob(userName, rank, score, drill.type, keywords);
+      const file = new File([blob], 'prep-score.png', { type: 'image/png' });
 
-      canvas.toBlob(async (blob) => {
-        if (!blob) return;
-        const file = new File([blob], 'prep-score.png', { type: 'image/png' });
-
-        if (navigator.canShare?.({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: 'I just crushed a Prep drill 🎯',
-            text: `I scored on the "${drill.type}" drill. Challenge me →`,
-          });
-        } else {
-          // Fallback to download
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'prep-score.png';
-          a.click();
-          URL.revokeObjectURL(url);
-        }
-      }, 'image/png');
-    } catch (e) {
-      console.error(e);
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: 'I just drilled with Prep',
+          text: `Scored ${score}/100 on "${drill.type}". Can you beat it?`,
+        });
+      } else {
+        // Fallback: download
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'prep-score.png';
+        a.click();
+        URL.revokeObjectURL(url);
+      }
     } finally {
       setSharing(false);
     }
   }
 
+  // Preview card (CSS version — for display only)
   return (
-    <div className="flex flex-col items-center gap-5">
-      {/* Card preview */}
-      <div ref={cardRef}>
-        <CardVisual drill={drill} keywords={keywords} userName={userName} rank={rank} />
+    <div className="flex flex-col gap-3">
+      {/* Visual preview */}
+      <div
+        className="rounded-2xl p-4"
+        style={{
+          background: 'linear-gradient(145deg, #0A1628 0%, #0D1E3A 60%, #0F2744 100%)',
+          border: '1px solid rgba(79,110,247,0.3)',
+        }}
+      >
+        <div className="flex items-start justify-between mb-3">
+          <div>
+            <p className="font-body" style={{ fontSize: 9, color: '#7A8BAD', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>
+              Prep · Interview Fitness
+            </p>
+            <p className="font-display font-bold" style={{ fontSize: 18, color: '#F0F4FF' }}>{userName}</p>
+          </div>
+          <span
+            className="font-display font-semibold rounded-full px-2.5 py-1"
+            style={{ fontSize: 10, color: '#F59E0B', background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)' }}
+          >
+            {rank}
+          </span>
+        </div>
+
+        <div
+          className="rounded-xl p-3 flex items-center justify-between mb-3"
+          style={{ background: 'rgba(79,110,247,0.1)', border: '1px solid rgba(79,110,247,0.2)' }}
+        >
+          <div>
+            <p className="font-body" style={{ fontSize: 9, color: '#7A8BAD', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>Drill Score</p>
+            <p className="font-display font-bold" style={{ fontSize: 28, color: score >= 80 ? '#4ADE80' : score >= 60 ? '#F6B84B' : '#FB7185', lineHeight: 1 }}>
+              {score}<span style={{ fontSize: 14, color: '#7A8BAD' }}>/100</span>
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="font-body" style={{ fontSize: 9, color: '#7A8BAD', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>Drill</p>
+            <p className="font-display font-semibold" style={{ fontSize: 11, color: '#7B96FF' }}>{drill.type}</p>
+          </div>
+        </div>
+
+        {keywords.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {keywords.slice(0, 4).map((w, i) => (
+              <span key={i} className="font-body rounded-full px-2.5 py-1" style={{ fontSize: 10, color: '#F0F4FF', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                {w}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <div className="rounded-full py-2 text-center" style={{ background: 'linear-gradient(135deg, #4F6EF7, #6B84FF)' }}>
+          <p className="font-display font-bold" style={{ fontSize: 12, color: '#fff' }}>Can you beat this? Try Prep →</p>
+        </div>
       </div>
 
       {/* Action buttons */}
-      <div className="flex gap-3 w-full max-w-[320px]">
+      <div className="flex gap-2.5">
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={handleShare}
           disabled={sharing}
           className="flex-1 font-display font-bold text-white cursor-pointer rounded-[100px] flex items-center justify-center gap-2"
-          style={{
-            height: 48,
-            background: 'linear-gradient(135deg, #4F6EF7 0%, #6B84FF 100%)',
-            fontSize: 14,
-            fontWeight: 700,
-            opacity: sharing ? 0.7 : 1,
-            boxShadow: '0 4px 20px rgba(79,110,247,0.3)',
-          }}
+          style={{ height: 46, background: 'linear-gradient(135deg, #4F6EF7, #6B84FF)', fontSize: 13, fontWeight: 700, opacity: sharing ? 0.7 : 1 }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-            <polyline points="16 6 12 2 8 6" />
-            <line x1="12" y1="2" x2="12" y2="15" />
+            <polyline points="16 6 12 2 8 6" /><line x1="12" y1="2" x2="12" y2="15" />
           </svg>
           {sharing ? 'Sharing...' : 'Challenge a friend'}
         </motion.button>
@@ -241,19 +282,12 @@ export default function ShareCard({ drill, keywords, userName, rank }: ShareCard
           onClick={handleDownload}
           disabled={downloading}
           className="cursor-pointer rounded-[100px] flex items-center justify-center"
-          style={{
-            width: 48,
-            height: 48,
-            background: 'rgba(255,255,255,0.06)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            opacity: downloading ? 0.7 : 1,
-          }}
+          style={{ width: 46, height: 46, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', opacity: downloading ? 0.7 : 1 }}
           aria-label="Download card"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F0F4FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F0F4FF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" y1="15" x2="12" y2="3" />
+            <polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
           </svg>
         </motion.button>
       </div>

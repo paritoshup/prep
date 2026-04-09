@@ -10,6 +10,7 @@ interface LiveSignal {
   headline: string;
   tag: string;
   link?: string;
+  gist?: string;
   summary: string;
 }
 
@@ -125,7 +126,22 @@ export default function DailySignalCard() {
             {display.headline}
           </h2>
 
-          {/* Why it matters */}
+          {/* Gist — short punchy TL;DR */}
+          {display.gist && (
+            <div
+              className="rounded-2xl px-4 py-3"
+              style={{ background: 'rgba(79,110,247,0.1)', border: '1px solid rgba(79,110,247,0.2)' }}
+            >
+              <p className="font-body uppercase tracking-widest mb-1.5" style={{ fontSize: 9, color: '#7A8BAD', letterSpacing: '0.1em' }}>
+                The gist
+              </p>
+              <p className="font-display font-semibold" style={{ fontSize: 14, color: '#C8D8FF', lineHeight: 1.55 }}>
+                {display.gist}
+              </p>
+            </div>
+          )}
+
+          {/* Why it matters — full context */}
           <div>
             <p
               className="font-body uppercase tracking-widest mb-3"
@@ -135,7 +151,7 @@ export default function DailySignalCard() {
             </p>
             <p
               className="font-body leading-relaxed"
-              style={{ fontSize: 14, color: '#B8C8E8', lineHeight: 1.75 }}
+              style={{ fontSize: 13, color: '#B8C8E8', lineHeight: 1.8 }}
             >
               {display.summary}
             </p>

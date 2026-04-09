@@ -124,6 +124,7 @@ export default function StackComplete({ sessions, onClose }: StackCompleteProps)
           <ShareCard
             drill={sessions[0] ? { id: sessions[0].drillId, type: sessions[0].drillType, name: '', description: '', meta: { mode: '', duration: '', color: 'accent' } } : { id: 1, type: "TODAY'S STACK", name: '', description: '', meta: { mode: '', duration: '', color: 'accent' } }}
             keywords={allKeywords}
+            score={avgScore}
             userName={userName}
             rank={rank}
           />
