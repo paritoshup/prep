@@ -39,7 +39,8 @@ export default function RootLayout({
     <html lang="en" className={`${syne.variable} ${dmSans.variable} h-full`}>
       <head>
         <meta name="theme-color" content="#080F1E" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/icon-192.svg" />
       </head>
       <body className="text-text font-body min-h-full antialiased" style={{ background: 'linear-gradient(160deg, #080F1E 0%, #0A1628 50%, #0D1E3A 100%)', backgroundAttachment: 'fixed', minHeight: '100vh' }}>
         {children}
