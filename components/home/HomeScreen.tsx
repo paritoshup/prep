@@ -31,22 +31,34 @@ function NewReadBadge({ onClick }: { onClick: () => void }) {
       className="cursor-pointer shrink-0"
       whileTap={{ scale: 0.95 }}
     >
-      <motion.div
-        animate={{ opacity: [0.75, 1, 0.75] }}
-        transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+      <div
         className="p-[1px] rounded-full"
-        style={{ background: 'linear-gradient(135deg, #4F6EF7 0%, #6B84FF 100%)' }}
+        style={{ background: 'linear-gradient(135deg, #F97316 0%, #FB923C 100%)' }}
       >
-        <div className="rounded-full px-3 py-1 flex items-center gap-1.5" style={{ background: '#080F1E' }}>
-          <span
-            className="w-1.5 h-1.5 rounded-full shrink-0"
-            style={{ background: '#4F6EF7' }}
+        <div
+          className="rounded-full px-3 py-1 flex items-center gap-1.5 relative overflow-hidden"
+          style={{ background: 'rgba(249,115,22,0.18)' }}
+        >
+          {/* Shimmer sweep */}
+          <motion.div
+            className="absolute inset-0 rounded-full"
+            style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.22) 50%, transparent 100%)' }}
+            initial={{ x: '-100%' }}
+            animate={{ x: '200%' }}
+            transition={{ duration: 1.6, repeat: Infinity, repeatDelay: 2, ease: 'easeInOut' }}
           />
-          <span className="font-body font-medium tracking-wide" style={{ fontSize: 11, color: '#7B96FF' }}>
+          <motion.svg
+            width="11" height="11" viewBox="0 0 24 24" fill="#fff"
+            animate={{ opacity: [0.7, 1, 0.7] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          </motion.svg>
+          <span className="font-body font-medium tracking-wide" style={{ fontSize: 11, color: '#fff' }}>
             New read
           </span>
         </div>
-      </motion.div>
+      </div>
     </motion.button>
   );
 }
@@ -106,19 +118,16 @@ function TodayView({ onStartRapidFire }: { onStartRapidFire: () => void }) {
         </span>
       </div>
 
-      {/* Drill journey */}
-      <div className="flex flex-col">
+      {/* Drill steps */}
+      <div
+        className="flex flex-col rounded-3xl overflow-hidden"
+        style={{ border: '1px solid rgba(79,110,247,0.22)', background: 'rgba(15,32,64,0.5)' }}
+      >
         {drills.map((drill, i) => (
           <div key={drill.id}>
-            <DrillCard drill={drill} index={i} />
+            <DrillCard drill={drill} index={i} unified />
             {i < drills.length - 1 && (
-              <div style={{ paddingLeft: 31, paddingTop: 2, paddingBottom: 2 }}>
-                <div className="flex flex-col gap-[4px]" style={{ width: 2 }}>
-                  <div className="rounded-full" style={{ width: 2, height: 2, background: 'rgba(255,255,255,0.18)' }} />
-                  <div className="rounded-full" style={{ width: 2, height: 2, background: 'rgba(255,255,255,0.11)' }} />
-                  <div className="rounded-full" style={{ width: 2, height: 2, background: 'rgba(255,255,255,0.06)' }} />
-                </div>
-              </div>
+              <div style={{ marginLeft: 16, marginRight: 16, height: 1, background: 'rgba(255,255,255,0.06)' }} />
             )}
           </div>
         ))}
