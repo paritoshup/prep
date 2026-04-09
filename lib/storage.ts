@@ -200,12 +200,19 @@ export function getCurrentReadinessScore(): number {
 export function getCurrentDay(): number {
   const user = getUser();
   if (!user) return 1;
-  // Backfill joinedAt for users who onboarded before this field existed
+
+  // Backfill joinedAt for users who onboarded before this field existed.
+  // Use earliest date in history → lastActiveDate → today, in that order.
   if (!user.joinedAt) {
-    const patched = { ...user, joinedAt: new Date().toISOString() };
+    const state = loadState();
+    const sorted = [...state.history].sort((a, b) => a.date.localeCompare(b.date));
+    const earliest = sorted[0]?.date ?? state.lastActiveDate ?? new Date().toISOString().slice(0, 10);
+    const patched = { ...user, joinedAt: new Date(earliest).toISOString() };
     saveUser(patched);
-    return 1;
+    const diff = Date.now() - new Date(earliest).getTime();
+    return Math.max(1, Math.floor(diff / 86400000) + 1);
   }
+
   const diff = Date.now() - new Date(user.joinedAt).getTime();
   return Math.max(1, Math.floor(diff / 86400000) + 1);
 }
