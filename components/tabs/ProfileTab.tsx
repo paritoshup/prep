@@ -242,6 +242,20 @@ export default function ProfileTab() {
           </div>
         </div>
 
+        {/* Reset */}
+        <button
+          onClick={() => {
+            if (confirm('Reset all app data? This clears your progress and restarts onboarding.')) {
+              localStorage.removeItem('prep_app_v1');
+              window.location.reload();
+            }
+          }}
+          className="w-full font-body cursor-pointer py-3 text-center"
+          style={{ fontSize: 12, color: '#FB7185', background: 'rgba(251,113,133,0.06)', border: '1px solid rgba(251,113,133,0.15)', borderRadius: 16 }}
+        >
+          Reset app data
+        </button>
+
       </div>
 
       {/* Edit sheets */}
