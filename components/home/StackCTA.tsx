@@ -11,9 +11,10 @@ import { saveDrillSession, updateStreak } from '@/lib/storage';
 
 interface StackCTAProps {
   drills: Drill[];
+  onDrillComplete?: (drillId: number) => void;
 }
 
-export default function StackCTA({ drills }: StackCTAProps) {
+export default function StackCTA({ drills, onDrillComplete }: StackCTAProps) {
   const [drillIndex, setDrillIndex] = useState<number | null>(null);
   const [sessions, setSessions] = useState<DrillSession[]>([]);
   const [stackDone, setStackDone] = useState(false);
@@ -33,6 +34,7 @@ export default function StackCTA({ drills }: StackCTAProps) {
     };
 
     saveDrillSession(session);
+    onDrillComplete?.(currentDrill.id);
     const updated = [...sessions, session];
     setSessions(updated);
 

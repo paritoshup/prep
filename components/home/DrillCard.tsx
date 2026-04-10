@@ -21,9 +21,10 @@ interface DrillCardProps {
   drill: Drill;
   index: number;
   unified?: boolean;
+  completed?: boolean;
 }
 
-export default function DrillCard({ drill, index, unified = false }: DrillCardProps) {
+export default function DrillCard({ drill, index, unified = false, completed = false }: DrillCardProps) {
   const typeColor = TYPE_COLORS[drill.meta.color] ?? '#7B96FF';
 
   return (
@@ -33,21 +34,30 @@ export default function DrillCard({ drill, index, unified = false }: DrillCardPr
       transition={{ delay: index * 0.08, duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
       whileTap={{ scale: 0.985 }}
       className="flex items-start gap-3 p-4 cursor-pointer"
-      style={unified ? {} : {
+      style={{ opacity: completed ? 0.6 : 1, ...(unified ? {} : {
         background: 'rgba(15,32,64,0.7)',
         border: '1px solid rgba(79,110,247,0.22)',
         borderRadius: 16,
         backdropFilter: 'blur(8px)',
-      }}
+      }) }}
     >
       {/* Step badge */}
       <div
         className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
-        style={{ background: 'rgba(79,110,247,0.14)', border: '1px solid rgba(79,110,247,0.25)' }}
+        style={{
+          background: completed ? 'rgba(34,197,94,0.12)' : 'rgba(79,110,247,0.14)',
+          border: `1px solid ${completed ? 'rgba(34,197,94,0.3)' : 'rgba(79,110,247,0.25)'}`,
+        }}
       >
-        <span className="font-display font-bold text-sm leading-none" style={{ color: '#7B96FF' }}>
-          {index + 1}
-        </span>
+        {completed ? (
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <path d="M2.5 6.5l3 3 5-5" stroke="#4ADE80" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        ) : (
+          <span className="font-display font-bold text-sm leading-none" style={{ color: '#7B96FF' }}>
+            {index + 1}
+          </span>
+        )}
       </div>
 
       {/* Drill info */}

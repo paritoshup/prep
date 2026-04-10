@@ -128,6 +128,41 @@ export function getTodayRecord(): DailyRecord {
   };
 }
 
+// ─── Readiness score formula ──────────────────────────────────────────────────
+// Max 100 = drill quality (50) + streak (20) + consistency (15) + rapid fire (15)
+function calculateReadinessScore(
+  sessions: DrillSession[],
+  streak: number,
+  history: DailyRecord[],
+  rapidFireScore: number,
+): number {
+  // 1. Drill quality (0–50): avg drill score × completion factor
+  let drillPoints = 0;
+  if (sessions.length > 0) {
+    const avg = sessions.reduce((s, d) => s + d.score, 0) / sessions.length;
+    const factor = sessions.length === 1 ? 0.40 : sessions.length === 2 ? 0.46 : 0.50;
+    drillPoints = Math.round(avg * factor);
+  }
+
+  // 2. Streak bonus (0–20): 2 pts per day, capped at 10 days
+  const streakPoints = Math.min(20, streak * 2);
+
+  // 3. Consistency (0–15): active days out of last 7
+  const today = new Date().toISOString().slice(0, 10);
+  const last7 = Array.from({ length: 7 }, (_, i) =>
+    new Date(Date.now() - i * 86400000).toISOString().slice(0, 10)
+  );
+  const activeDays = last7.filter(d =>
+    d === today || history.some(r => r.date === d && r.drillsDone > 0)
+  ).length;
+  const consistencyPoints = Math.round((activeDays / 7) * 15);
+
+  // 4. Rapid fire (0–15)
+  const rapidPoints = Math.round((rapidFireScore / 100) * 15);
+
+  return Math.min(100, drillPoints + streakPoints + consistencyPoints + rapidPoints);
+}
+
 export function saveDrillSession(session: DrillSession): void {
   const state = loadState();
   const today = getTodayKey();
@@ -148,9 +183,9 @@ export function saveDrillSession(session: DrillSession): void {
     record.drillsDone = record.sessions.length;
   }
 
-  // Recalculate readiness score based on drills + streak
+  // Recalculate readiness score with proper weighted formula
   const streak = updateStreak();
-  record.readinessScore = Math.min(100, 40 + record.drillsDone * 15 + Math.min(streak * 2, 20));
+  record.readinessScore = calculateReadinessScore(record.sessions, streak, history, record.rapidFireScore);
 
   if (idx >= 0) {
     history[idx] = record;

@@ -86,6 +86,50 @@ const ALL_DRILLS: Omit<Drill, 'id'>[] = [
     meta: { mode: 'Camera on', duration: '90s', color: 'amber' },
   },
 
+  // ── DESIGN DILEMMA ───────────────────────────────────────────────────────
+  {
+    type: 'DESIGN DILEMMA',
+    name: "Two users want opposite things. Who do you design for?",
+    description: "There's no right answer — only a well-reasoned one. Make your call.",
+    meta: { mode: 'Mic only', duration: '45s', color: 'accent' },
+    active: true,
+  },
+  {
+    type: 'DESIGN DILEMMA',
+    name: "Ship fast with tech debt, or slow with clean foundations?",
+    description: "Context changes everything. What factors would tip your decision?",
+    meta: { mode: 'Mic only', duration: '45s', color: 'accent' },
+    active: true,
+  },
+  {
+    type: 'DESIGN DILEMMA',
+    name: "The data says one thing. Your gut says another. What wins?",
+    description: "Both can be right. Walk through how you'd resolve the tension.",
+    meta: { mode: 'Mic only', duration: '45s', color: 'accent' },
+    active: true,
+  },
+  {
+    type: 'DESIGN DILEMMA',
+    name: "Your most-used feature is also your most confusing. Now what?",
+    description: "Redesigning it means breaking familiarity. How do you approach that?",
+    meta: { mode: 'Mic only', duration: '45s', color: 'accent' },
+    active: true,
+  },
+  {
+    type: 'DESIGN DILEMMA',
+    name: "You have 3 days to ship. What gets cut and what stays?",
+    description: "Prioritisation under pressure is a core design skill. Show it.",
+    meta: { mode: 'Mic only', duration: '30s', color: 'accent' },
+    active: true,
+  },
+  {
+    type: 'DESIGN DILEMMA',
+    name: "Accessibility improvement vs. a feature 80% of users want. Pick one.",
+    description: "No easy answer. Make your reasoning explicit.",
+    meta: { mode: 'Mic only', duration: '45s', color: 'accent' },
+    active: true,
+  },
+
   // ── OWN THE CALL ──────────────────────────────────────────────────────────
   {
     type: 'OWN THE CALL',
@@ -133,13 +177,17 @@ export function getCurrentDrills(): Drill[] {
   const INTERVAL_MS = 12 * 60 * 60 * 1000;
   const windowIndex = Math.floor(Date.now() / INTERVAL_MS);
 
-  const briefDrills  = ALL_DRILLS.filter(d => d.type === 'READ THE BRIEF');
-  const visionDrills = ALL_DRILLS.filter(d => d.type === 'BUILD THE VISION');
-  const ownDrills    = ALL_DRILLS.filter(d => d.type === 'OWN THE CALL');
+  const briefDrills   = ALL_DRILLS.filter(d => d.type === 'READ THE BRIEF');
+  const visionDrills  = ALL_DRILLS.filter(d => d.type === 'BUILD THE VISION');
+  const ownDrills     = ALL_DRILLS.filter(d => d.type === 'OWN THE CALL');
+  const dilemmaDrills = ALL_DRILLS.filter(d => d.type === 'DESIGN DILEMMA');
 
-  const brief  = briefDrills[windowIndex  % briefDrills.length];
+  // Slot 1: alternate between READ THE BRIEF and DESIGN DILEMMA every window
+  const usesDilemma = windowIndex % 3 === 2; // every 3rd window is a dilemma
+  const firstPool = usesDilemma ? dilemmaDrills : briefDrills;
+  const first  = firstPool[windowIndex % firstPool.length];
   const vision = visionDrills[windowIndex % visionDrills.length];
-  const own    = ownDrills[windowIndex    % ownDrills.length];
+  const own    = ownDrills[windowIndex   % ownDrills.length];
 
-  return [brief, vision, own].map((d, i) => ({ ...d, id: i + 1 }));
+  return [first, vision, own].map((d, i) => ({ ...d, id: i + 1 }));
 }

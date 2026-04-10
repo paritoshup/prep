@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import type { Drill } from '@/lib/mockData';
 
@@ -160,6 +160,16 @@ async function generateCardBlob(
 export default function ShareCard({ drill, keywords, score, userName, rank }: ShareCardProps) {
   const [downloading, setDownloading] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let url: string;
+    generateCardBlob(userName, rank, score, drill.type, keywords).then(blob => {
+      url = URL.createObjectURL(blob);
+      setPreviewUrl(url);
+    });
+    return () => { if (url) URL.revokeObjectURL(url); };
+  }, [userName, rank, score, drill.type, keywords]);
 
   async function handleDownload() {
     if (downloading) return;
@@ -204,61 +214,17 @@ export default function ShareCard({ drill, keywords, score, userName, rank }: Sh
     }
   }
 
-  // Preview card (CSS version — for display only)
   return (
     <div className="flex flex-col gap-3">
-      {/* Visual preview */}
-      <div
-        className="rounded-2xl p-4"
-        style={{
-          background: 'linear-gradient(145deg, #0A1628 0%, #0D1E3A 60%, #0F2744 100%)',
-          border: '1px solid rgba(79,110,247,0.3)',
-        }}
-      >
-        <div className="flex items-start justify-between mb-3">
-          <div>
-            <p className="font-body" style={{ fontSize: 9, color: '#7A8BAD', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>
-              Prep · Interview Fitness
-            </p>
-            <p className="font-display font-bold" style={{ fontSize: 18, color: '#F0F4FF' }}>{userName}</p>
-          </div>
-          <span
-            className="font-display font-semibold rounded-full px-2.5 py-1"
-            style={{ fontSize: 10, color: '#F59E0B', background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)' }}
-          >
-            {rank}
-          </span>
-        </div>
-
-        <div
-          className="rounded-xl p-3 flex items-center justify-between mb-3"
-          style={{ background: 'rgba(79,110,247,0.1)', border: '1px solid rgba(79,110,247,0.2)' }}
-        >
-          <div>
-            <p className="font-body" style={{ fontSize: 9, color: '#7A8BAD', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>Drill Score</p>
-            <p className="font-display font-bold" style={{ fontSize: 28, color: score >= 80 ? '#4ADE80' : score >= 60 ? '#F6B84B' : '#FB7185', lineHeight: 1 }}>
-              {score}<span style={{ fontSize: 14, color: '#7A8BAD' }}>/100</span>
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="font-body" style={{ fontSize: 9, color: '#7A8BAD', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>Drill</p>
-            <p className="font-display font-semibold" style={{ fontSize: 11, color: '#7B96FF' }}>{drill.type}</p>
-          </div>
-        </div>
-
-        {keywords.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            {keywords.slice(0, 4).map((w, i) => (
-              <span key={i} className="font-body rounded-full px-2.5 py-1" style={{ fontSize: 10, color: '#F0F4FF', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                {w}
-              </span>
-            ))}
+      {/* Canvas-rendered preview — exactly what gets saved */}
+      <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(79,110,247,0.25)' }}>
+        {previewUrl ? (
+          <img src={previewUrl} alt="Score card preview" className="w-full block" style={{ borderRadius: 16 }} />
+        ) : (
+          <div className="flex items-center justify-center" style={{ height: 140, background: 'rgba(15,32,64,0.7)' }}>
+            <div className="w-6 h-6 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: 'rgba(79,110,247,0.4)', borderTopColor: 'transparent' }} />
           </div>
         )}
-
-        <div className="rounded-full py-2 text-center" style={{ background: 'linear-gradient(135deg, #4F6EF7, #6B84FF)' }}>
-          <p className="font-display font-bold" style={{ fontSize: 12, color: '#fff' }}>Can you beat this? Try Prep →</p>
-        </div>
       </div>
 
       {/* Action buttons */}

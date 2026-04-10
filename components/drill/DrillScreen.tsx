@@ -120,6 +120,7 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
   const recognitionRef = useRef<AnySpeechRecognition | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const elapsedRef = useRef(0);
+  const transcriptRef = useRef('');
 
   useEffect(() => {
     const stored = localStorage.getItem('prep_mic_consent');
@@ -193,6 +194,7 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
     recognition.onresult = (event: any) => {
       let full = '';
       for (let i = 0; i < event.results.length; i++) full += event.results[i][0].transcript + ' ';
+      transcriptRef.current = full;
       setTranscript(full);
     };
     recognition.onerror = () => setIsListening(false);
@@ -210,12 +212,13 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
     if (stage === 'done') {
       if (navigator.vibrate) navigator.vibrate(100);
       const duration = elapsedRef.current || totalSeconds;
+      const finalTranscript = transcriptRef.current || transcript;
 
       fetch('/api/drill-feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          transcript,
+          transcript: finalTranscript,
           drillName: drill.name,
           drillType: drill.type,
           durationSeconds: duration,
@@ -233,9 +236,8 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
           });
         })
         .catch(() => {
-          // Fallback to local analysis
-          const kw = extractKeywords(transcript);
-          const feedback = analyseTranscript(transcript, duration);
+          const kw = extractKeywords(finalTranscript);
+          const feedback = analyseTranscript(finalTranscript, duration);
           setKeywords(kw);
           setVoiceFeedback(feedback);
         });
@@ -356,7 +358,7 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
                 keywords={keywords}
                 voiceFeedback={voiceFeedback}
                 onDone={() => onComplete(keywords)}
-                ctaLabel={drillNumber < totalDrills ? `Next drill (${drillNumber + 1}/${totalDrills}) →` : 'Complete the stack →'}
+                ctaLabel={drillNumber < totalDrills ? `Next drill (${drillNumber + 1}/${totalDrills}) →` : 'Back to home'}
               />
             </motion.div>
           )}

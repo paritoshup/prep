@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getCurrentDrills } from '@/lib/drillBank';
-import { getUser, getCurrentDay, getCurrentReadinessScore } from '@/lib/storage';
+import { getUser, getCurrentDay, getCurrentReadinessScore, getTodayRecord } from '@/lib/storage';
 import BottomNav, { type AppTab } from '@/components/ui/BottomNav';
 import DayCounter from './DayCounter';
 import ReadinessCard from './ReadinessCard';
@@ -64,7 +64,7 @@ function NewReadBadge({ onClick }: { onClick: () => void }) {
 }
 
 /* ─── Today tab ─────────────────────────────────────────────────── */
-function TodayView({ onStartRapidFire }: { onStartRapidFire: () => void }) {
+function TodayView({ onStartRapidFire, completedDrillIds }: { onStartRapidFire: () => void; completedDrillIds: number[] }) {
   const greeting = getGreeting();
   const drills = getCurrentDrills();
   const user = getUser();
@@ -125,7 +125,7 @@ function TodayView({ onStartRapidFire }: { onStartRapidFire: () => void }) {
       >
         {drills.map((drill, i) => (
           <div key={drill.id}>
-            <DrillCard drill={drill} index={i} unified />
+            <DrillCard drill={drill} index={i} unified completed={completedDrillIds.includes(drill.id)} />
             {i < drills.length - 1 && (
               <div style={{ marginLeft: 16, marginRight: 16, height: 1, background: 'rgba(255,255,255,0.06)' }} />
             )}
@@ -147,6 +147,9 @@ function TodayView({ onStartRapidFire }: { onStartRapidFire: () => void }) {
 export default function HomeScreen() {
   const [activeTab, setActiveTab] = useState<AppTab>('today');
   const [rapidFireOpen, setRapidFireOpen] = useState(false);
+  const [completedDrillIds, setCompletedDrillIds] = useState<number[]>(() =>
+    getTodayRecord().sessions.map(s => s.drillId)
+  );
   const drills = getCurrentDrills();
 
   return (
@@ -155,7 +158,7 @@ export default function HomeScreen() {
       <AnimatePresence mode="wait">
         {activeTab === 'today' && (
           <motion.div key="today" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-            <TodayView onStartRapidFire={() => setRapidFireOpen(true)} />
+            <TodayView onStartRapidFire={() => setRapidFireOpen(true)} completedDrillIds={completedDrillIds} />
           </motion.div>
         )}
         {activeTab === 'progress' && (
@@ -171,7 +174,7 @@ export default function HomeScreen() {
       </AnimatePresence>
 
       {/* Fixed bottom: CTA (today only) + Nav */}
-      {activeTab === 'today' && <StackCTA drills={drills} />}
+      {activeTab === 'today' && <StackCTA drills={drills} onDrillComplete={id => setCompletedDrillIds(prev => [...prev, id])} />}
       <BottomNav active={activeTab} onChange={setActiveTab} />
 
       {/* Rapid Fire full-screen overlay */}
