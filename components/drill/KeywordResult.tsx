@@ -11,10 +11,11 @@ interface KeywordResultProps {
   keywords: string[];
   voiceFeedback: VoiceFeedback | null;
   onDone: () => void;
+  onRepeat: () => void;
   ctaLabel?: string;
 }
 
-export default function KeywordResult({ drill, keywords, voiceFeedback, onDone, ctaLabel = 'Continue' }: KeywordResultProps) {
+export default function KeywordResult({ drill, keywords, voiceFeedback, onDone, onRepeat, ctaLabel = 'Continue' }: KeywordResultProps) {
   const user = getUser();
   const score = voiceFeedback?.score ?? null;
   const scoreColor = score === null ? '#7B96FF' : score >= 80 ? '#4ADE80' : score >= 60 ? '#F6B84B' : '#FB7185';
@@ -123,9 +124,9 @@ export default function KeywordResult({ drill, keywords, voiceFeedback, onDone, 
         />
       </motion.div>
 
-      {/* Fixed bottom CTA */}
+      {/* Fixed bottom CTAs */}
       <div className="fixed left-0 right-0 px-4 z-50 shell-fixed" style={{ bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }}>
-        <div className="max-w-[390px] mx-auto">
+        <div className="max-w-[390px] mx-auto flex flex-col gap-2.5">
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={onDone}
@@ -133,6 +134,14 @@ export default function KeywordResult({ drill, keywords, voiceFeedback, onDone, 
             style={{ height: 52, background: 'linear-gradient(135deg, #4F6EF7 0%, #6B84FF 100%)', borderRadius: 100, fontSize: 16, fontWeight: 700, boxShadow: '0 4px 24px rgba(79,110,247,0.35)' }}
           >
             {ctaLabel}
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={onRepeat}
+            className="w-full font-display cursor-pointer"
+            style={{ height: 44, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)', borderRadius: 100, fontSize: 14, fontWeight: 600, color: '#7A8BAD' }}
+          >
+            Re-practice this drill
           </motion.button>
         </div>
       </div>

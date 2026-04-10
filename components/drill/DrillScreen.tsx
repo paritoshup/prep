@@ -358,6 +358,16 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
                 keywords={keywords}
                 voiceFeedback={voiceFeedback}
                 onDone={() => onComplete(keywords)}
+                onRepeat={() => {
+                  setStage('ready');
+                  setTranscript('');
+                  setKeywords([]);
+                  setVoiceFeedback(null);
+                  setTimeLeft(totalSeconds);
+                  setElapsed(0);
+                  elapsedRef.current = 0;
+                  transcriptRef.current = '';
+                }}
                 ctaLabel={drillNumber < totalDrills ? `Next drill (${drillNumber + 1}/${totalDrills}) →` : 'Back to home'}
               />
             </motion.div>

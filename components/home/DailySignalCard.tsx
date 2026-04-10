@@ -18,19 +18,58 @@ interface DailySignalCardProps {
   onClose: () => void;
 }
 
+const SIGNAL_CACHE_KEY = 'prep_signal_cache';
+const REFRESH_INTERVAL_MS = 4 * 60 * 60 * 1000; // 4 hours
+
+function loadCachedSignal(): { signal: LiveSignal; fetchedAt: number } | null {
+  try {
+    const raw = localStorage.getItem(SIGNAL_CACHE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function cacheSignal(signal: LiveSignal) {
+  try {
+    localStorage.setItem(SIGNAL_CACHE_KEY, JSON.stringify({ signal, fetchedAt: Date.now() }));
+  } catch { /* quota */ }
+}
+
+function scheduleSignalNotification() {
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.ready.then(reg => {
+    reg.active?.postMessage({
+      type: 'SCHEDULE_SIGNAL_NOTIFICATION',
+      delayMs: REFRESH_INTERVAL_MS,
+    });
+  });
+}
+
 export default function DailySignalCard({ open, onClose }: DailySignalCardProps) {
   const [signal, setSignal] = useState<LiveSignal | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      // Use cache if fresh (< 4 hours old)
+      const cached = loadCachedSignal();
+      if (cached && Date.now() - cached.fetchedAt < REFRESH_INTERVAL_MS) {
+        if (!cancelled) setSignal(cached.signal);
+        return;
+      }
       try {
-        const res = await fetch('/api/signal', { next: { revalidate: 28800 } } as RequestInit);
+        const res = await fetch('/api/signal');
         if (!res.ok) throw new Error('bad response');
         const data = await res.json();
-        if (!cancelled) setSignal(data.item);
+        if (!cancelled) {
+          setSignal(data.item);
+          cacheSignal(data.item);
+          scheduleSignalNotification();
+        }
       } catch {
-        if (!cancelled) setSignal(getCurrentSignal() as LiveSignal);
+        if (!cancelled) {
+          const fallback = cached?.signal ?? (getCurrentSignal() as LiveSignal);
+          setSignal(fallback);
+        }
       }
     })();
     return () => { cancelled = true; };

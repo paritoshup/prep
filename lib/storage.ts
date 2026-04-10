@@ -230,6 +230,45 @@ export function getCurrentReadinessScore(): number {
   return history[history.length - 1].score;
 }
 
+export interface ReadinessBreakdown {
+  drillPoints: number;     // 0–50
+  streakPoints: number;    // 0–20
+  consistencyPoints: number; // 0–15
+  rapidPoints: number;     // 0–15
+  streak: number;
+  activeDays: number;      // out of last 7
+  drillsCompleted: number; // today
+  avgDrillScore: number;
+}
+
+export function getReadinessBreakdown(): ReadinessBreakdown {
+  const state = loadState();
+  const today = getTodayKey();
+  const record = state.history.find(r => r.date === today);
+  const sessions = record?.sessions ?? [];
+  const streak = state.streak;
+
+  const avgDrillScore = sessions.length > 0
+    ? Math.round(sessions.reduce((s, d) => s + d.score, 0) / sessions.length)
+    : 0;
+  const factor = sessions.length === 1 ? 0.40 : sessions.length === 2 ? 0.46 : 0.50;
+  const drillPoints = sessions.length > 0 ? Math.round(avgDrillScore * factor) : 0;
+  const streakPoints = Math.min(20, streak * 2);
+
+  const last7 = Array.from({ length: 7 }, (_, i) =>
+    new Date(Date.now() - i * 86400000).toISOString().slice(0, 10)
+  );
+  const activeDays = last7.filter(d =>
+    d === today || state.history.some(r => r.date === d && r.drillsDone > 0)
+  ).length;
+  const consistencyPoints = Math.round((activeDays / 7) * 15);
+
+  const rapidFireScore = record?.rapidFireScore ?? 0;
+  const rapidPoints = Math.round((rapidFireScore / 100) * 15);
+
+  return { drillPoints, streakPoints, consistencyPoints, rapidPoints, streak, activeDays, drillsCompleted: sessions.length, avgDrillScore };
+}
+
 // ─── Day counter ──────────────────────────────────────────────────────────────
 
 export function getCurrentDay(): number {

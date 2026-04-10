@@ -28,9 +28,29 @@ const FEEDS = [
     tag: 'Design · Culture',
   },
   {
-    url: 'https://feeds.feedburner.com/TroyHunt', // fallback — MIT Tech Review
+    url: 'https://www.technologyreview.com/feed/',
     source: 'MIT Tech Review',
     tag: 'AI · Research',
+  },
+  {
+    url: 'https://www.fastcompany.com/technology/rss',
+    source: 'Fast Company',
+    tag: 'Tech · Innovation',
+  },
+  {
+    url: 'https://www.fastcompany.com/section/design/rss',
+    source: 'Fast Company',
+    tag: 'Design · Innovation',
+  },
+  {
+    url: 'https://www.reddit.com/r/userexperience/top/.rss?t=week&limit=10',
+    source: 'r/userexperience',
+    tag: 'Community · UX',
+  },
+  {
+    url: 'https://www.reddit.com/r/ProductManagement/top/.rss?t=week&limit=10',
+    source: 'r/ProductManagement',
+    tag: 'Community · Product',
   },
 ];
 
@@ -73,6 +93,7 @@ function relevanceScore(title: string): number {
     'ai', 'design', 'product', 'ux', 'interface', 'model', 'gpt', 'llm',
     'figma', 'anthropic', 'openai', 'google', 'apple', 'agent', 'workflow',
     'tool', 'feature', 'launch', 'startup', 'billion', 'future', 'build',
+    'innovation', 'hire', 'portfolio', 'interview', 'stakeholder', 'research',
   ];
   const lower = title.toLowerCase();
   return keywords.reduce((score, kw) => score + (lower.includes(kw) ? 1 : 0), 0);
@@ -130,6 +151,32 @@ export async function GET() {
 
 function generateSummary(title: string, source: string): { gist: string; summary: string } {
   const lower = title.toLowerCase();
+
+  // Reddit community threads — practitioner perspective
+  if (source.startsWith('r/')) {
+    if (lower.includes('hire') || lower.includes('job') || lower.includes('interview') || lower.includes('portfolio')) {
+      return {
+        gist: "Practitioners are debating what actually gets people hired right now — worth knowing before your interview.",
+        summary: "Reddit's UX and PM communities are unusually honest about hiring signals — what portfolios actually get looked at, what interviewers are really evaluating, and what candidates keep getting wrong. This thread is a direct window into how hiring managers think. Read it as prep material, not just industry gossip. What are the recurring complaints? What do the successful candidates have in common? Bring that awareness into your next interview.",
+      };
+    }
+    if (lower.includes('ai') || lower.includes('tool') || lower.includes('figma') || lower.includes('workflow')) {
+      return {
+        gist: "Practitioners are sharing real reactions to AI in their workflows — not vendor marketing, actual day-to-day impact.",
+        summary: "When designers and PMs discuss AI tools on Reddit, you get unfiltered signal: what's genuinely saving time, what's overhyped, and where people are genuinely worried about their role. That practitioner perspective is exactly what interviewers want to see — not a recitation of feature lists, but an opinion grounded in how real work gets done. Read this thread and form a point of view you can defend.",
+      };
+    }
+    if (lower.includes('stakeholder') || lower.includes('feedback') || lower.includes('pushback') || lower.includes('convince')) {
+      return {
+        gist: "Someone in the community hit a real friction point — and the responses are a masterclass in professional navigation.",
+        summary: "The most useful interview prep isn't practice questions — it's reading how experienced practitioners handle messy situations. Stakeholder conflict, design pushback, research that gets ignored — these threads are full of hard-won tactics. When you're asked 'tell me about a time you had to convince a stakeholder', a specific framework beats a vague story. These discussions give you language and structure for real answers.",
+      };
+    }
+    return {
+      gist: "A real conversation from practitioners in the field — the kind of thinking that separates candidates who've been in the room from those who haven't.",
+      summary: "Community discussions like this one surface the unwritten rules of the industry — the things that don't make it into job descriptions or design blogs. Reading what experienced UX and product people are actually wrestling with gives you a more honest picture of the role than any course or book. Go in with a question: what does this tell me about what the job is really like? What would I have done differently?",
+    };
+  }
 
   if (lower.includes('agent') || lower.includes('agentic')) {
     return {

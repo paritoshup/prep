@@ -33,13 +33,34 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
-// Handle reminder notifications from the main thread
+// Handle messages from the main thread
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'SCHEDULE_REMINDER') {
     const { reminderTime, title, body } = event.data;
     scheduleReminder(reminderTime, title, body);
   }
+  if (event.data?.type === 'SCHEDULE_SIGNAL_NOTIFICATION') {
+    const delay = event.data.delayMs ?? 4 * 60 * 60 * 1000;
+    scheduleSignalNotification(delay);
+  }
 });
+
+let signalNotifTimer = null;
+
+function scheduleSignalNotification(delayMs) {
+  if (signalNotifTimer) clearTimeout(signalNotifTimer);
+  signalNotifTimer = setTimeout(() => {
+    self.registration.showNotification('New read in Prep', {
+      body: 'Fresh industry signal just dropped — 2 min read to stay ahead.',
+      icon: '/icon-192.svg',
+      badge: '/icon-192.svg',
+      tag: 'signal-refresh',
+      renotify: true,
+      data: { url: '/' },
+    });
+    signalNotifTimer = null;
+  }, delayMs);
+}
 
 function scheduleReminder(reminderTime, title, body) {
   const [hours, minutes] = reminderTime.split(':').map(Number);
