@@ -131,6 +131,7 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
   useEffect(() => {
     return () => {
       timerRef.current && clearInterval(timerRef.current);
+      srActiveRef.current = false;
       recognitionRef.current?.stop();
     };
   }, []);
@@ -179,31 +180,60 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
     if (micEnabled) startSpeechRecognition();
   }
 
+  const srActiveRef = useRef(false);
+
   function startSpeechRecognition() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const w = window as any;
     const SR = w.SpeechRecognition || w.webkitSpeechRecognition;
     if (!SR) return;
-    const recognition = new SR();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-    recognition.onstart = () => setIsListening(true);
-    recognition.onend = () => setIsListening(false);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    recognition.onresult = (event: any) => {
-      let full = '';
-      for (let i = 0; i < event.results.length; i++) full += event.results[i][0].transcript + ' ';
-      transcriptRef.current = full;
-      setTranscript(full);
-    };
-    recognition.onerror = () => setIsListening(false);
-    recognitionRef.current = recognition;
-    try { recognition.start(); } catch (_) { /* already started */ }
+
+    srActiveRef.current = true;
+
+    function createAndStart() {
+      if (!srActiveRef.current) return;
+      const recognition = new SR();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => setIsListening(true);
+
+      // Auto-restart: the browser kills recognition after silence or network hiccup.
+      // If the drill is still running, restart immediately.
+      recognition.onend = () => {
+        setIsListening(false);
+        if (srActiveRef.current) {
+          try { createAndStart(); } catch (_) { /* ignore */ }
+        }
+      };
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      recognition.onresult = (event: any) => {
+        let full = '';
+        for (let i = 0; i < event.results.length; i++) full += event.results[i][0].transcript + ' ';
+        transcriptRef.current = full;
+        setTranscript(full);
+      };
+
+      recognition.onerror = (e: { error: string }) => {
+        setIsListening(false);
+        // 'aborted' fires when we manually stop — don't restart on that
+        if (e.error === 'aborted' || e.error === 'not-allowed') {
+          srActiveRef.current = false;
+        }
+      };
+
+      recognitionRef.current = recognition;
+      try { recognition.start(); } catch (_) { /* already started */ }
+    }
+
+    createAndStart();
   }
 
   function endDrill() {
     timerRef.current && clearInterval(timerRef.current);
+    srActiveRef.current = false; // stop auto-restart loop before calling .stop()
     recognitionRef.current?.stop();
     setStage('done');
   }
