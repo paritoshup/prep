@@ -285,25 +285,52 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
     >
       {/* Top bar — hidden when results are shown */}
       {stage !== 'done' && (
-        <div className="flex items-center justify-between px-4 pt-14 pb-4 max-w-[390px] mx-auto w-full">
-          <div>
-            <p className="font-body uppercase tracking-widest" style={{ fontSize: 9, color: '#7A8BAD', letterSpacing: '0.1em' }}>
-              {drill.type}
-            </p>
-            <p className="font-body" style={{ fontSize: 11, color: '#4F6EF7' }}>
-              Drill {drillNumber} of {totalDrills}
-            </p>
-          </div>
+        <div className="flex items-center gap-3 px-4 pt-14 pb-4 max-w-[390px] mx-auto w-full">
+          {/* Close */}
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer"
+            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 cursor-pointer"
             style={{ background: 'rgba(255,255,255,0.06)' }}
             aria-label="Close drill"
           >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M2 2l10 10M12 2L2 12" stroke="#7A8BAD" strokeWidth="1.8" strokeLinecap="round" />
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M1 1l10 10M11 1L1 11" stroke="#7A8BAD" strokeWidth="1.8" strokeLinecap="round" />
             </svg>
           </button>
+
+          {/* Segmented progress bar */}
+          <div className="flex-1 flex items-center gap-1.5">
+            {Array.from({ length: totalDrills }).map((_, i) => {
+              const completed = i < drillNumber - 1;
+              const active    = i === drillNumber - 1;
+
+              return (
+                <div
+                  key={i}
+                  className="flex-1 rounded-full overflow-hidden"
+                  style={{ height: 4, background: 'rgba(255,255,255,0.1)' }}
+                >
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ background: '#4F6EF7' }}
+                    initial={{ width: completed ? '100%' : '0%' }}
+                    animate={{
+                      width: completed
+                        ? '100%'
+                        : active && stage === 'recording'
+                          ? '100%'
+                          : '0%',
+                    }}
+                    transition={
+                      active && stage === 'recording'
+                        ? { duration: totalSeconds, ease: 'linear' }
+                        : { duration: 0.3 }
+                    }
+                  />
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
