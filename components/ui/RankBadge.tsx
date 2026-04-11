@@ -8,7 +8,7 @@ export default function RankBadge({ rank }: RankBadgeProps) {
       className="p-[1px] rounded-full shrink-0"
       style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #EF4444 100%)' }}
     >
-      <div className="rounded-full px-3 py-1" style={{ background: '#080F1E' }}>
+      <div className="rounded-full px-3 py-1" style={{ background: 'var(--surface)' }}>
         <span
           className="font-body font-medium text-[11px] tracking-wide"
           style={{ color: '#F59E0B' }}

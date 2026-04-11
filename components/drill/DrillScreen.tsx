@@ -96,6 +96,37 @@ function parseDuration(d: string): number {
   return match[2] === 'm' ? n * 60 : n;
 }
 
+const WAVE = [
+  { maxH: 20, dur: 0.50 },
+  { maxH: 32, dur: 0.68 },
+  { maxH: 16, dur: 0.58 },
+  { maxH: 38, dur: 0.78 },
+  { maxH: 22, dur: 0.53 },
+  { maxH: 30, dur: 0.63 },
+  { maxH: 16, dur: 0.44 },
+];
+
+function ListeningWave({ active }: { active: boolean }) {
+  return (
+    <div className="flex items-center justify-center gap-1" style={{ height: 48 }}>
+      {WAVE.map((bar, i) => (
+        <motion.div
+          key={i}
+          style={{ width: 3, borderRadius: 4, background: active ? 'var(--green)' : 'var(--surface2)' }}
+          animate={active
+            ? { height: [4, bar.maxH, 4] }
+            : { height: 4 }
+          }
+          transition={active
+            ? { duration: bar.dur, repeat: Infinity, ease: 'easeInOut', delay: i * 0.09 }
+            : { duration: 0.35 }
+          }
+        />
+      ))}
+    </div>
+  );
+}
+
 type Stage = 'consent' | 'ready' | 'recording' | 'done';
 
 interface DrillScreenProps {
@@ -137,17 +168,14 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
   }, []);
 
   function handleConsentAccept() {
-    // Request browser mic permission immediately so user sees the native prompt now
     navigator.mediaDevices?.getUserMedia({ audio: true })
       .then(stream => {
-        // Stop tracks right away — we just needed the permission grant
         stream.getTracks().forEach(t => t.stop());
         localStorage.setItem('prep_mic_consent', 'true');
         setMicEnabled(true);
         setStage('ready');
       })
       .catch(() => {
-        // Browser denied — fall back to no-mic mode
         localStorage.setItem('prep_mic_consent', 'false');
         setMicEnabled(false);
         setStage('ready');
@@ -199,8 +227,6 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
 
       recognition.onstart = () => setIsListening(true);
 
-      // Auto-restart: the browser kills recognition after silence or network hiccup.
-      // If the drill is still running, restart immediately.
       recognition.onend = () => {
         setIsListening(false);
         if (srActiveRef.current) {
@@ -218,7 +244,6 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
 
       recognition.onerror = (e: { error: string }) => {
         setIsListening(false);
-        // 'aborted' fires when we manually stop — don't restart on that
         if (e.error === 'aborted' || e.error === 'not-allowed') {
           srActiveRef.current = false;
         }
@@ -233,7 +258,7 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
 
   function endDrill() {
     timerRef.current && clearInterval(timerRef.current);
-    srActiveRef.current = false; // stop auto-restart loop before calling .stop()
+    srActiveRef.current = false;
     recognitionRef.current?.stop();
     setStage('done');
   }
@@ -281,7 +306,7 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex flex-col shell-fixed"
-      style={{ background: 'linear-gradient(160deg, #080F1E 0%, #0A1628 50%, #0D1E3A 100%)' }}
+      style={{ background: 'var(--bg)' }}
     >
       {/* Top bar — hidden when results are shown */}
       {stage !== 'done' && (
@@ -290,11 +315,11 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 cursor-pointer"
-            style={{ background: 'rgba(255,255,255,0.06)' }}
+            style={{ background: 'var(--surface2)' }}
             aria-label="Close drill"
           >
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M1 1l10 10M11 1L1 11" stroke="#7A8BAD" strokeWidth="1.8" strokeLinecap="round" />
+              <path d="M1 1l10 10M11 1L1 11" stroke="var(--muted)" strokeWidth="1.8" strokeLinecap="round" />
             </svg>
           </button>
 
@@ -308,11 +333,11 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
                 <div
                   key={i}
                   className="flex-1 rounded-full overflow-hidden"
-                  style={{ height: 4, background: 'rgba(255,255,255,0.1)' }}
+                  style={{ height: 4, background: 'var(--surface2)' }}
                 >
                   <motion.div
                     className="h-full rounded-full"
-                    style={{ background: '#4F6EF7' }}
+                    style={{ background: 'var(--accent)' }}
                     initial={{ width: completed ? '100%' : '0%' }}
                     animate={{
                       width: completed
@@ -340,26 +365,26 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
 
           {stage === 'ready' && (
             <motion.div key="ready" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} className="flex flex-col gap-5">
-              <h2 className="font-display leading-snug" style={{ fontSize: 22, fontWeight: 700, color: '#F0F4FF' }}>
+              <h2 className="font-display leading-snug" style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)' }}>
                 {drill.name}
               </h2>
-              <p className="font-body leading-relaxed" style={{ fontSize: 14, color: '#B8C8E8' }}>
+              <p className="font-body leading-relaxed" style={{ fontSize: 14, color: 'var(--muted)' }}>
                 {drill.description}
               </p>
-              <div className="rounded-2xl p-4 flex items-center gap-3" style={{ background: 'rgba(15,32,64,0.7)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7A8BAD" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <div className="rounded-2xl p-4 flex items-center gap-3" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
                 </svg>
-                <p className="font-body" style={{ fontSize: 13, color: '#7A8BAD' }}>
+                <p className="font-body" style={{ fontSize: 13, color: 'var(--muted)' }}>
                   {drill.meta.duration} · {drill.meta.mode}
                 </p>
               </div>
               {micEnabled ? (
-                <div className="rounded-2xl p-3 flex items-center gap-2.5" style={{ background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.15)' }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <div className="rounded-2xl p-3 flex items-center gap-2.5" style={{ background: 'var(--green-bg)', border: '1px solid rgba(26,158,92,0.2)' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="9" y="2" width="6" height="11" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><line x1="12" y1="19" x2="12" y2="22" /><line x1="8" y1="22" x2="16" y2="22" />
                   </svg>
-                  <p className="font-body" style={{ fontSize: 12, color: '#4ADE80' }}>
+                  <p className="font-body" style={{ fontSize: 12, color: 'var(--green-text)' }}>
                     Mic on — AI voice feedback enabled
                   </p>
                 </div>
@@ -370,12 +395,12 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
                     setStage('consent');
                   }}
                   className="rounded-2xl p-3 flex items-center gap-2.5 w-full cursor-pointer text-left"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+                  style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7A8BAD" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="9" y="2" width="6" height="11" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><line x1="12" y1="19" x2="12" y2="22" /><line x1="8" y1="22" x2="16" y2="22" />
                   </svg>
-                  <p className="font-body" style={{ fontSize: 12, color: '#7A8BAD' }}>
+                  <p className="font-body" style={{ fontSize: 12, color: 'var(--muted)' }}>
                     Mic off — tap to enable AI feedback
                   </p>
                 </button>
@@ -386,22 +411,21 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
           {stage === 'recording' && (
             <motion.div key="recording" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} className="flex flex-col gap-6">
               <div className="flex flex-col items-center gap-2 py-8">
-                <motion.div key={timeLeft} initial={{ scale: 1.05 }} animate={{ scale: 1 }} className="font-display" style={{ fontSize: 72, fontWeight: 800, color: timeLeft <= 10 ? '#FB7185' : '#F0F4FF', lineHeight: 1 }}>
+                <motion.div key={timeLeft} initial={{ scale: 1.05 }} animate={{ scale: 1 }} className="font-display" style={{ fontSize: 72, fontWeight: 800, color: timeLeft <= 10 ? 'var(--red)' : 'var(--text)', lineHeight: 1 }}>
                   {timeLeft}
                 </motion.div>
-                <p className="font-body" style={{ fontSize: 12, color: '#7A8BAD' }}>seconds remaining</p>
+                <p className="font-body" style={{ fontSize: 12, color: 'var(--muted)' }}>seconds remaining</p>
+                <div className="mt-2">
+                  <ListeningWave active={isListening} />
+                </div>
                 {isListening && (
-                  <div className="flex items-center gap-1.5 mt-1">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-70" style={{ background: '#4ADE80' }} />
-                      <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: '#4ADE80' }} />
-                    </span>
-                    <p className="font-body" style={{ fontSize: 11, color: '#4ADE80' }}>Listening</p>
-                  </div>
+                  <p className="font-body text-center" style={{ fontSize: 11, color: 'var(--green-text)', marginTop: 2 }}>
+                    Listening
+                  </p>
                 )}
               </div>
-              <div className="rounded-2xl p-4" style={{ background: 'rgba(15,32,64,0.7)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                <p className="font-display leading-snug" style={{ fontSize: 16, fontWeight: 600, color: '#F0F4FF' }}>
+              <div className="rounded-2xl p-4" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+                <p className="font-display leading-snug" style={{ fontSize: 16, fontWeight: 600, color: 'var(--text)' }}>
                   {drill.name}
                 </p>
               </div>
@@ -443,12 +467,12 @@ export default function DrillScreen({ drill, drillNumber, totalDrills, onComplet
         <div className="fixed left-0 right-0 px-4 z-40 shell-fixed" style={{ bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }}>
           <div className="max-w-[390px] mx-auto">
             {stage === 'ready' && (
-              <motion.button whileTap={{ scale: 0.97 }} onClick={startDrill} className="w-full font-display font-bold text-white cursor-pointer" style={{ height: 52, background: 'linear-gradient(135deg, #4F6EF7 0%, #6B84FF 100%)', borderRadius: 100, fontSize: 16, fontWeight: 700, boxShadow: '0 4px 24px rgba(79,110,247,0.35)' }}>
+              <motion.button whileTap={{ scale: 0.97 }} onClick={startDrill} className="w-full font-display font-bold text-white cursor-pointer" style={{ height: 52, background: 'var(--accent)', borderRadius: 14, fontSize: 16, fontWeight: 700, boxShadow: '0 4px 24px rgba(255,92,53,0.3)' }}>
                 Start — I'm ready
               </motion.button>
             )}
             {stage === 'recording' && (
-              <motion.button whileTap={{ scale: 0.97 }} onClick={endDrill} className="w-full font-display font-bold cursor-pointer" style={{ height: 52, background: 'rgba(255,255,255,0.06)', borderRadius: 100, fontSize: 16, fontWeight: 700, color: '#F0F4FF', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <motion.button whileTap={{ scale: 0.97 }} onClick={endDrill} className="w-full font-display font-bold cursor-pointer" style={{ height: 52, background: 'var(--surface)', borderRadius: 14, fontSize: 16, fontWeight: 700, color: 'var(--text)', border: '1px solid var(--border)' }}>
                 Done — end early
               </motion.button>
             )}

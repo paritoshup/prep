@@ -2,32 +2,55 @@
 
 /* ─── Design Tokens ─────────────────────────────────────────────── */
 :root {
-  --bg: #080F1E;
-  --bg2: #0A1628;
-  --surface: #0F2040;
-  --surface2: #132848;
-  --border: rgba(255, 255, 255, 0.08);
-  --border2: rgba(255, 255, 255, 0.14);
-  --text: #F0F4FF;
-  --muted: #7A8BAD;
-  --accent: #4F6EF7;
-  --accent2: #6B84FF;
-  --green: #22C55E;
-  --amber: #F59E0B;
+  --bg:          #F2F0EB;
+  --surface:     #FFFFFF;
+  --surface2:    #E8E6E1;
+  --text:        #1A1A1A;
+  --muted:       #888880;
+  --subtle:      #B8B6B0;
+
+  --accent:      #FF5C35;
+  --accent-bg:   #FFE8E2;
+  --accent-text: #C44A1E;
+
+  --blue:        #3B6EF8;
+  --blue-bg:     #EBF0FF;
+  --blue-text:   #2B52C8;
+
+  --green:       #1A9E5C;
+  --green-bg:    #E3F5EC;
+  --green-text:  #1A7A44;
+
+  --amber:       #F5A623;
+  --amber-bg:    #FFF5E0;
+  --amber-text:  #C47E0A;
+
+  --red:         #E53E3E;
+  --red-bg:      #FEEAEA;
+  --red-text:    #B91C1C;
+
+  --border:      rgba(0,0,0,0.07);
+  --border2:     rgba(0,0,0,0.13);
+
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+
+  --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 /* ─── Tailwind v4 Theme ──────────────────────────────────────────── */
 @theme inline {
-  --color-bg:       #080F1E;
-  --color-bg2:      #0A1628;
-  --color-surface:  #0F2040;
-  --color-surface2: #132848;
-  --color-text:     #F0F4FF;
-  --color-muted:    #7A8BAD;
-  --color-accent:   #4F6EF7;
-  --color-accent2:  #6B84FF;
-  --color-green:    #22C55E;
-  --color-amber:    #F59E0B;
+  --color-bg:       #F2F0EB;
+  --color-surface:  #FFFFFF;
+  --color-surface2: #E8E6E1;
+  --color-text:     #1A1A1A;
+  --color-muted:    #888880;
+  --color-accent:   #FF5C35;
+  --color-blue:     #3B6EF8;
+  --color-green:    #1A9E5C;
+  --color-amber:    #F5A623;
+  --color-red:      #E53E3E;
 
   --font-display: var(--font-syne);
   --font-body:    var(--font-dm-sans);
@@ -39,34 +62,32 @@
 *::after {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
-  scrollbar-width: none;      /* Firefox */
-  -ms-overflow-style: none;   /* IE/Edge */
+  touch-action: manipulation;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-*::-webkit-scrollbar {
-  display: none;              /* Chrome/Safari/WebKit */
-}
+*::-webkit-scrollbar { display: none; }
 
 html {
   height: 100%;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
-  background: linear-gradient(160deg, #080F1E 0%, #0A1628 50%, #0D1E3A 100%);
-  background-attachment: fixed;
-  color: #F0F4FF;
+  background: var(--bg);
+  color: var(--text);
   min-height: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Safe area bottom padding for fixed bottom nav */
+/* Safe area */
 .pb-safe {
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
-/* ─── Mobile shell — centres app on desktop ─────────────────────── */
+/* ─── Mobile shell ───────────────────────────────────────────────── */
 .mobile-shell {
   width: 100%;
   min-height: 100vh;
@@ -82,6 +103,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: flex-start;
+    background: #D8D5CF;
   }
 
   .mobile-shell {
@@ -90,12 +112,10 @@ body {
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 32px 80px rgba(0,0,0,0.6);
-    background: linear-gradient(160deg, #080F1E 0%, #0A1628 50%, #0D1E3A 100%);
+    background: var(--bg);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.08), 0 32px 80px rgba(0,0,0,0.18);
   }
 
-  /* Pin any position:fixed element to the 390px shell column.
-     Apply .shell-fixed to every component that uses position:fixed. */
   .shell-fixed {
     left: calc(50% - 195px) !important;
     right: calc(50% - 195px) !important;

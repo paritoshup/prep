@@ -42,22 +42,19 @@ async function generateCardBlob(
   const ctx = canvas.getContext('2d')!;
 
   // ── Background ────────────────────────────────────────────────────────
-  const bg = ctx.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0, '#080F1E');
-  bg.addColorStop(1, '#0D1E3A');
   roundRect(ctx, 0, 0, W, H, 32);
-  ctx.fillStyle = bg;
+  ctx.fillStyle = '#F2F0EB';
   ctx.fill();
 
   // Border
   roundRect(ctx, 1, 1, W - 2, H - 2, 31);
-  ctx.strokeStyle = 'rgba(79,110,247,0.3)';
+  ctx.strokeStyle = 'rgba(0,0,0,0.08)';
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
   // ── App label (top-left) ──────────────────────────────────────────────
   ctx.font = '500 13px -apple-system, system-ui, sans-serif';
-  ctx.fillStyle = 'rgba(122,139,173,0.7)';
+  ctx.fillStyle = '#888880';
   ctx.letterSpacing = '0.08em';
   ctx.fillText('PREP · INTERVIEW FITNESS', PAD, 52);
   ctx.letterSpacing = '0';
@@ -68,19 +65,18 @@ async function generateCardBlob(
   const rankW = ctx.measureText(rankText).width + 24;
   const rankX = W - PAD - rankW;
   roundRect(ctx, rankX, 34, rankW, 28, 14);
-  ctx.fillStyle = 'rgba(245,158,11,0.12)';
+  ctx.fillStyle = 'rgba(245,166,35,0.12)';
   ctx.fill();
   roundRect(ctx, rankX, 34, rankW, 28, 14);
-  ctx.strokeStyle = 'rgba(245,158,11,0.4)';
+  ctx.strokeStyle = 'rgba(245,166,35,0.4)';
   ctx.lineWidth = 1;
   ctx.stroke();
-  ctx.fillStyle = '#F59E0B';
+  ctx.fillStyle = '#C47E0A';
   ctx.fillText(rankText, rankX + 12, 52);
 
   // ── User name ─────────────────────────────────────────────────────────
-  // Truncate if too long
   ctx.font = 'bold 40px -apple-system, system-ui, sans-serif';
-  ctx.fillStyle = '#F0F4FF';
+  ctx.fillStyle = '#1A1A1A';
   let displayName = userName;
   while (ctx.measureText(displayName).width > W - PAD * 2 - rankW - 24 && displayName.length > 4) {
     displayName = displayName.slice(0, -1);
@@ -89,7 +85,7 @@ async function generateCardBlob(
   ctx.fillText(displayName, PAD, 110);
 
   // ── Divider ───────────────────────────────────────────────────────────
-  ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+  ctx.strokeStyle = 'rgba(0,0,0,0.07)';
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(PAD, 130);
@@ -97,7 +93,10 @@ async function generateCardBlob(
   ctx.stroke();
 
   // ── Score section ─────────────────────────────────────────────────────
-  const scoreColor = score >= 80 ? '#4ADE80' : score >= 60 ? '#F6B84B' : score > 0 ? '#FB7185' : '#7A8BAD';
+  let scoreColor = '#888880';
+  if (score >= 80) scoreColor = '#1A9E5C';
+  else if (score >= 60) scoreColor = '#C47E0A';
+  else if (score > 0) scoreColor = '#E53E3E';
 
   // Score number — large
   ctx.font = 'bold 72px -apple-system, system-ui, sans-serif';
@@ -108,25 +107,25 @@ async function generateCardBlob(
   // "/100" — smaller, muted, baseline-aligned
   const scoreNumW = ctx.measureText(scoreStr).width;
   ctx.font = '400 22px -apple-system, system-ui, sans-serif';
-  ctx.fillStyle = 'rgba(122,139,173,0.6)';
+  ctx.fillStyle = 'rgba(136,136,128,0.6)';
   ctx.fillText('/100', PAD + scoreNumW + 6, 218);
 
   // "SCORE" label beneath
   ctx.font = '500 11px -apple-system, system-ui, sans-serif';
-  ctx.fillStyle = 'rgba(122,139,173,0.5)';
+  ctx.fillStyle = 'rgba(136,136,128,0.5)';
   ctx.letterSpacing = '0.1em';
   ctx.fillText('SCORE', PAD, 238);
   ctx.letterSpacing = '0';
 
   // ── Drill type (right side of score row) ──────────────────────────────
   ctx.font = '500 11px -apple-system, system-ui, sans-serif';
-  ctx.fillStyle = 'rgba(122,139,173,0.5)';
+  ctx.fillStyle = 'rgba(136,136,128,0.5)';
   ctx.letterSpacing = '0.1em';
   ctx.textAlign = 'right';
   ctx.fillText('DRILL TYPE', W - PAD, 158);
   ctx.letterSpacing = '0';
   ctx.font = '700 16px -apple-system, system-ui, sans-serif';
-  ctx.fillStyle = '#7B96FF';
+  ctx.fillStyle = '#2B52C8';
   ctx.fillText(drillType, W - PAD, 182);
   ctx.textAlign = 'left';
 
@@ -140,13 +139,13 @@ async function generateCardBlob(
       const pw = tw + 20;
       if (kx + pw > W - PAD) break;
       roundRect(ctx, kx, ky, pw, 28, 14);
-      ctx.fillStyle = 'rgba(255,255,255,0.05)';
+      ctx.fillStyle = '#EBF0FF';
       ctx.fill();
       roundRect(ctx, kx, ky, pw, 28, 14);
-      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.strokeStyle = 'rgba(59,110,248,0.2)';
       ctx.lineWidth = 1;
       ctx.stroke();
-      ctx.fillStyle = '#B8C8E8';
+      ctx.fillStyle = '#2B52C8';
       ctx.fillText(kw, kx + 10, ky + 19);
       kx += pw + 8;
     }
@@ -154,11 +153,8 @@ async function generateCardBlob(
 
   // ── CTA button ────────────────────────────────────────────────────────
   const btnY = H - 88;
-  roundRect(ctx, PAD, btnY, W - PAD * 2, 48, 24);
-  const ctaBg = ctx.createLinearGradient(PAD, 0, W - PAD, 0);
-  ctaBg.addColorStop(0, '#4F6EF7');
-  ctaBg.addColorStop(1, '#6B84FF');
-  ctx.fillStyle = ctaBg;
+  roundRect(ctx, PAD, btnY, W - PAD * 2, 48, 14);
+  ctx.fillStyle = '#FF5C35';
   ctx.fill();
   ctx.font = '700 16px -apple-system, system-ui, sans-serif';
   ctx.fillStyle = '#ffffff';
@@ -168,7 +164,7 @@ async function generateCardBlob(
 
   // ── Watermark ─────────────────────────────────────────────────────────
   ctx.font = '400 12px -apple-system, system-ui, sans-serif';
-  ctx.fillStyle = 'rgba(74,90,122,0.6)';
+  ctx.fillStyle = 'rgba(136,136,128,0.5)';
   ctx.textAlign = 'center';
   ctx.fillText('prep.app', W / 2, H - 18);
   ctx.textAlign = 'left';
@@ -246,12 +242,12 @@ export default function ShareCard({ drill, keywords, score, userName, rank }: Sh
   return (
     <div className="flex flex-col gap-3">
       {/* Canvas-rendered preview — exactly what gets saved */}
-      <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(79,110,247,0.25)' }}>
+      <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid var(--border2)' }}>
         {previewUrl ? (
           <img src={previewUrl} alt="Score card preview" className="w-full block" style={{ borderRadius: 16 }} />
         ) : (
-          <div className="flex items-center justify-center" style={{ height: 140, background: 'rgba(15,32,64,0.7)' }}>
-            <div className="w-6 h-6 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: 'rgba(79,110,247,0.4)', borderTopColor: 'transparent' }} />
+          <div className="flex items-center justify-center" style={{ height: 140, background: 'var(--surface2)' }}>
+            <div className="w-6 h-6 rounded-full border-2 animate-spin" style={{ borderColor: 'var(--border2)', borderTopColor: 'var(--accent)' }} />
           </div>
         )}
       </div>
@@ -263,9 +259,9 @@ export default function ShareCard({ drill, keywords, score, userName, rank }: Sh
           onClick={handleShare}
           disabled={sharing}
           className="flex-1 font-display cursor-pointer rounded-[100px] flex items-center justify-center gap-2"
-          style={{ height: 46, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 13, fontWeight: 600, color: '#B8C8E8', opacity: sharing ? 0.7 : 1 }}
+          style={{ height: 46, background: 'var(--surface2)', border: '1px solid var(--border)', fontSize: 13, fontWeight: 600, color: 'var(--muted)', opacity: sharing ? 0.7 : 1 }}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B8C8E8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
             <polyline points="16 6 12 2 8 6" /><line x1="12" y1="2" x2="12" y2="15" />
           </svg>
@@ -277,10 +273,10 @@ export default function ShareCard({ drill, keywords, score, userName, rank }: Sh
           onClick={handleDownload}
           disabled={downloading}
           className="cursor-pointer rounded-[100px] flex items-center justify-center"
-          style={{ width: 46, height: 46, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', opacity: downloading ? 0.7 : 1 }}
+          style={{ width: 46, height: 46, background: 'var(--surface2)', border: '1px solid var(--border)', opacity: downloading ? 0.7 : 1 }}
           aria-label="Download card"
         >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F0F4FF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
             <polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
           </svg>

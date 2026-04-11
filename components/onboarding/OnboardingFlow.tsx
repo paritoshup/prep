@@ -33,13 +33,13 @@ function StepName({ onNext }: StepProps) {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <p className="font-body uppercase tracking-widest mb-3" style={{ fontSize: 9, color: '#7A8BAD', letterSpacing: '0.1em' }}>
+        <p className="font-body uppercase tracking-widest mb-3" style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em' }}>
           Step 1 of 4
         </p>
-        <h1 className="font-display leading-tight mb-2" style={{ fontSize: 28, fontWeight: 800, color: '#F0F4FF' }}>
+        <h1 className="font-display leading-tight mb-2" style={{ fontSize: 28, fontWeight: 800, color: 'var(--text)' }}>
           What should we call you?
         </h1>
-        <p className="font-body" style={{ fontSize: 14, color: '#7A8BAD' }}>
+        <p className="font-body" style={{ fontSize: 14, color: 'var(--muted)' }}>
           This shows up on your score cards and drills.
         </p>
       </div>
@@ -53,11 +53,12 @@ function StepName({ onNext }: StepProps) {
         className="w-full font-display outline-none rounded-2xl px-5"
         style={{
           height: 56,
-          background: 'rgba(15,32,64,0.8)',
-          border: '1px solid rgba(79,110,247,0.3)',
-          color: '#F0F4FF',
+          background: 'var(--surface)',
+          border: '1px solid var(--border2)',
+          color: 'var(--text)',
           fontSize: 18,
           fontWeight: 600,
+          colorScheme: 'light',
         }}
         onKeyDown={e => { if (e.key === 'Enter' && name.trim()) onNext({ name: name.trim() }); }}
       />
@@ -69,13 +70,13 @@ function StepName({ onNext }: StepProps) {
         className="w-full font-display font-bold text-white cursor-pointer"
         style={{
           height: 52,
-          background: name.trim() ? 'linear-gradient(135deg, #4F6EF7 0%, #6B84FF 100%)' : 'rgba(255,255,255,0.06)',
-          borderRadius: 100,
+          background: name.trim() ? 'var(--accent)' : 'var(--surface2)',
+          borderRadius: 14,
           fontSize: 16,
           fontWeight: 700,
-          color: name.trim() ? '#fff' : '#4A5A7A',
+          color: name.trim() ? '#fff' : 'var(--subtle)',
           transition: 'all 0.2s',
-          boxShadow: name.trim() ? '0 4px 24px rgba(79,110,247,0.3)' : 'none',
+          boxShadow: name.trim() ? '0 4px 24px rgba(255,92,53,0.3)' : 'none',
         }}
       >
         Continue →
@@ -91,13 +92,13 @@ function StepRole({ onNext }: StepProps) {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <p className="font-body uppercase tracking-widest mb-3" style={{ fontSize: 9, color: '#7A8BAD', letterSpacing: '0.1em' }}>
+        <p className="font-body uppercase tracking-widest mb-3" style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em' }}>
           Step 2 of 4
         </p>
-        <h1 className="font-display leading-tight mb-2" style={{ fontSize: 28, fontWeight: 800, color: '#F0F4FF' }}>
+        <h1 className="font-display leading-tight mb-2" style={{ fontSize: 28, fontWeight: 800, color: 'var(--text)' }}>
           What's your role?
         </h1>
-        <p className="font-body" style={{ fontSize: 14, color: '#7A8BAD' }}>
+        <p className="font-body" style={{ fontSize: 14, color: 'var(--muted)' }}>
           We'll tailor your drills and signals to match.
         </p>
       </div>
@@ -111,15 +112,15 @@ function StepRole({ onNext }: StepProps) {
             className="w-full flex items-center gap-4 rounded-2xl px-5 cursor-pointer text-left"
             style={{
               height: 60,
-              background: selected === role ? 'rgba(79,110,247,0.15)' : 'rgba(15,32,64,0.7)',
-              border: `1px solid ${selected === role ? 'rgba(79,110,247,0.5)' : 'rgba(255,255,255,0.07)'}`,
+              background: selected === role ? 'var(--blue-bg)' : 'var(--surface)',
+              border: `1px solid ${selected === role ? 'var(--blue)' : 'var(--border)'}`,
               transition: 'all 0.2s',
             }}
           >
-            <span style={{ fontSize: 18, color: selected === role ? '#7B96FF' : '#4A5A7A' }}>
+            <span style={{ fontSize: 18, color: selected === role ? 'var(--blue)' : 'var(--subtle)' }}>
               {ROLE_ICONS[role]}
             </span>
-            <span className="font-display font-semibold" style={{ fontSize: 15, color: selected === role ? '#F0F4FF' : '#B8C8E8' }}>
+            <span className="font-display font-semibold" style={{ fontSize: 15, color: selected === role ? 'var(--blue-text)' : 'var(--text)' }}>
               {role}
             </span>
             {selected === role && (
@@ -129,8 +130,8 @@ function StepRole({ onNext }: StepProps) {
                 className="ml-auto"
                 width="18" height="18" viewBox="0 0 18 18" fill="none"
               >
-                <circle cx="9" cy="9" r="8.25" stroke="#4F6EF7" strokeWidth="1.5" />
-                <path d="M5.5 9l2.5 2.5 4.5-4.5" stroke="#4F6EF7" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <circle cx="9" cy="9" r="8.25" stroke="var(--blue)" strokeWidth="1.5" />
+                <path d="M5.5 9l2.5 2.5 4.5-4.5" stroke="var(--blue)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </motion.svg>
             )}
           </motion.button>
@@ -144,13 +145,13 @@ function StepRole({ onNext }: StepProps) {
         className="w-full font-display font-bold cursor-pointer"
         style={{
           height: 52,
-          background: selected ? 'linear-gradient(135deg, #4F6EF7 0%, #6B84FF 100%)' : 'rgba(255,255,255,0.06)',
-          borderRadius: 100,
+          background: selected ? 'var(--accent)' : 'var(--surface2)',
+          borderRadius: 14,
           fontSize: 16,
           fontWeight: 700,
-          color: selected ? '#fff' : '#4A5A7A',
+          color: selected ? '#fff' : 'var(--subtle)',
           transition: 'all 0.2s',
-          boxShadow: selected ? '0 4px 24px rgba(79,110,247,0.3)' : 'none',
+          boxShadow: selected ? '0 4px 24px rgba(255,92,53,0.3)' : 'none',
         }}
       >
         Continue →
@@ -166,13 +167,13 @@ function StepCompany({ onNext }: StepProps) {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <p className="font-body uppercase tracking-widest mb-3" style={{ fontSize: 9, color: '#7A8BAD', letterSpacing: '0.1em' }}>
+        <p className="font-body uppercase tracking-widest mb-3" style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em' }}>
           Step 3 of 4
         </p>
-        <h1 className="font-display leading-tight mb-2" style={{ fontSize: 28, fontWeight: 800, color: '#F0F4FF' }}>
+        <h1 className="font-display leading-tight mb-2" style={{ fontSize: 28, fontWeight: 800, color: 'var(--text)' }}>
           Who are you interviewing with?
         </h1>
-        <p className="font-body" style={{ fontSize: 14, color: '#7A8BAD' }}>
+        <p className="font-body" style={{ fontSize: 14, color: 'var(--muted)' }}>
           Your countdown and drills will reference this. Skip if you're exploring.
         </p>
       </div>
@@ -186,11 +187,12 @@ function StepCompany({ onNext }: StepProps) {
         className="w-full font-display outline-none rounded-2xl px-5"
         style={{
           height: 56,
-          background: 'rgba(15,32,64,0.8)',
-          border: '1px solid rgba(79,110,247,0.3)',
-          color: '#F0F4FF',
+          background: 'var(--surface)',
+          border: '1px solid var(--border2)',
+          color: 'var(--text)',
           fontSize: 16,
           fontWeight: 600,
+          colorScheme: 'light',
         }}
         onKeyDown={e => { if (e.key === 'Enter') onNext({ company: company.trim() }); }}
       />
@@ -202,19 +204,19 @@ function StepCompany({ onNext }: StepProps) {
           className="w-full font-display font-bold text-white cursor-pointer"
           style={{
             height: 52,
-            background: 'linear-gradient(135deg, #4F6EF7 0%, #6B84FF 100%)',
-            borderRadius: 100,
+            background: 'var(--accent)',
+            borderRadius: 14,
             fontSize: 16,
             fontWeight: 700,
-            boxShadow: '0 4px 24px rgba(79,110,247,0.3)',
+            boxShadow: '0 4px 24px rgba(255,92,53,0.3)',
           }}
         >
-          {company.trim() ? 'Continue →' : 'Continue →'}
+          Continue →
         </motion.button>
         <button
           onClick={() => onNext({ company: '' })}
           className="font-body cursor-pointer py-2"
-          style={{ fontSize: 13, color: '#4A5A7A' }}
+          style={{ fontSize: 13, color: 'var(--muted)' }}
         >
           Skip for now
         </button>
@@ -231,20 +233,20 @@ function StepSchedule({ onNext }: StepProps) {
   return (
     <div className="flex flex-col gap-7">
       <div>
-        <p className="font-body uppercase tracking-widest mb-3" style={{ fontSize: 9, color: '#7A8BAD', letterSpacing: '0.1em' }}>
+        <p className="font-body uppercase tracking-widest mb-3" style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em' }}>
           Step 4 of 4
         </p>
-        <h1 className="font-display leading-tight mb-2" style={{ fontSize: 28, fontWeight: 800, color: '#F0F4FF' }}>
+        <h1 className="font-display leading-tight mb-2" style={{ fontSize: 28, fontWeight: 800, color: 'var(--text)' }}>
           When's the interview?
         </h1>
-        <p className="font-body" style={{ fontSize: 14, color: '#7A8BAD' }}>
+        <p className="font-body" style={{ fontSize: 14, color: 'var(--muted)' }}>
           Set a deadline and a daily reminder. Your streak depends on it.
         </p>
       </div>
 
       {/* Date picker */}
       <div className="flex flex-col gap-2">
-        <label className="font-body uppercase tracking-widest" style={{ fontSize: 9, color: '#7A8BAD', letterSpacing: '0.1em' }}>
+        <label className="font-body uppercase tracking-widest" style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em' }}>
           Interview date (optional)
         </label>
         <input
@@ -255,18 +257,18 @@ function StepSchedule({ onNext }: StepProps) {
           className="w-full font-body outline-none rounded-2xl px-5 cursor-pointer"
           style={{
             height: 52,
-            background: 'rgba(15,32,64,0.8)',
-            border: '1px solid rgba(79,110,247,0.3)',
-            color: date ? '#F0F4FF' : '#4A5A7A',
+            background: 'var(--surface)',
+            border: '1px solid var(--border2)',
+            color: date ? 'var(--text)' : 'var(--subtle)',
             fontSize: 15,
-            colorScheme: 'dark',
+            colorScheme: 'light',
           }}
         />
       </div>
 
       {/* Reminder time */}
       <div className="flex flex-col gap-3">
-        <label className="font-body uppercase tracking-widest" style={{ fontSize: 9, color: '#7A8BAD', letterSpacing: '0.1em' }}>
+        <label className="font-body uppercase tracking-widest" style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em' }}>
           Daily reminder
         </label>
         <div className="grid grid-cols-2 gap-2.5">
@@ -277,14 +279,14 @@ function StepSchedule({ onNext }: StepProps) {
               onClick={() => setReminderTime(t.value)}
               className="rounded-2xl px-4 py-3 cursor-pointer text-left"
               style={{
-                background: reminderTime === t.value ? 'rgba(79,110,247,0.15)' : 'rgba(15,32,64,0.7)',
-                border: `1px solid ${reminderTime === t.value ? 'rgba(79,110,247,0.4)' : 'rgba(255,255,255,0.07)'}`,
+                background: reminderTime === t.value ? 'var(--blue-bg)' : 'var(--surface)',
+                border: `1px solid ${reminderTime === t.value ? 'var(--blue)' : 'var(--border)'}`,
               }}
             >
-              <p className="font-display font-semibold" style={{ fontSize: 13, color: reminderTime === t.value ? '#F0F4FF' : '#B8C8E8' }}>
+              <p className="font-display font-semibold" style={{ fontSize: 13, color: reminderTime === t.value ? 'var(--blue-text)' : 'var(--text)' }}>
                 {t.label}
               </p>
-              <p className="font-body" style={{ fontSize: 11, color: '#7A8BAD' }}>{t.sub}</p>
+              <p className="font-body" style={{ fontSize: 11, color: 'var(--muted)' }}>{t.sub}</p>
             </motion.button>
           ))}
         </div>
@@ -297,11 +299,11 @@ function StepSchedule({ onNext }: StepProps) {
           className="w-full font-display font-bold text-white cursor-pointer"
           style={{
             height: 52,
-            background: 'linear-gradient(135deg, #4F6EF7 0%, #6B84FF 100%)',
-            borderRadius: 100,
+            background: 'var(--accent)',
+            borderRadius: 14,
             fontSize: 16,
             fontWeight: 700,
-            boxShadow: '0 4px 24px rgba(79,110,247,0.3)',
+            boxShadow: '0 4px 24px rgba(255,92,53,0.3)',
           }}
         >
           Let's go →
@@ -309,7 +311,7 @@ function StepSchedule({ onNext }: StepProps) {
         <button
           onClick={() => onNext({ interviewDate: '', reminderTime })}
           className="font-body cursor-pointer py-2"
-          style={{ fontSize: 13, color: '#4A5A7A' }}
+          style={{ fontSize: 13, color: 'var(--muted)' }}
         >
           Skip interview date
         </button>
@@ -372,14 +374,14 @@ export default function OnboardingFlow({ onComplete }: { onComplete: () => void 
   return (
     <div
       className="fixed inset-0 z-50 flex flex-col justify-end shell-fixed"
-      style={{ background: 'linear-gradient(160deg, #080F1E 0%, #0A1628 50%, #0D1E3A 100%)' }}
+      style={{ background: 'var(--bg)' }}
     >
       {/* Progress dots */}
       <div className="flex justify-center gap-2 pt-16 pb-8">
         {[0, 1, 2, 3].map(i => (
           <motion.div
             key={i}
-            animate={{ width: i === step ? 20 : 6, background: i <= step ? '#4F6EF7' : 'rgba(255,255,255,0.12)' }}
+            animate={{ width: i === step ? 20 : 6, background: i <= step ? 'var(--accent)' : 'var(--surface2)' }}
             className="h-1.5 rounded-full"
             transition={{ duration: 0.3 }}
           />

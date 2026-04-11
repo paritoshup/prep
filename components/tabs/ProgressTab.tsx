@@ -38,13 +38,13 @@ export default function ProgressTab() {
 
       {/* Hero */}
       <div>
-        <p className="font-body" style={{ fontSize: 12, color: '#7A8BAD', marginBottom: 4 }}>
+        <p className="font-body" style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 4 }}>
           Your journey
         </p>
-        <h1 className="font-display" style={{ fontSize: 26, fontWeight: 800, color: '#F0F4FF', lineHeight: 1.2 }}>
+        <h1 className="font-display" style={{ fontSize: 26, fontWeight: 800, color: 'var(--text)', lineHeight: 1.2 }}>
           Day {currentDay} of {TOTAL_DAYS}
         </h1>
-        <p className="font-body mt-1" style={{ fontSize: 13, color: '#7A8BAD' }}>
+        <p className="font-body mt-1" style={{ fontSize: 13, color: 'var(--muted)' }}>
           {isDay1
             ? 'Complete your first drill to start tracking your score.'
             : `${daysLeft} days left. Keep showing up.`}
@@ -54,13 +54,13 @@ export default function ProgressTab() {
       {/* Progress bar */}
       <div>
         <div className="flex justify-between mb-2">
-          <span className="font-body" style={{ fontSize: 11, color: '#7A8BAD' }}>Day 1</span>
-          <span className="font-body" style={{ fontSize: 11, color: '#7A8BAD' }}>Day {TOTAL_DAYS}</span>
+          <span className="font-body" style={{ fontSize: 11, color: 'var(--muted)' }}>Day 1</span>
+          <span className="font-body" style={{ fontSize: 11, color: 'var(--muted)' }}>Day {TOTAL_DAYS}</span>
         </div>
-        <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+        <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--surface2)' }}>
           <motion.div
             className="h-full rounded-full"
-            style={{ background: 'linear-gradient(90deg, #4F6EF7, #6B84FF)' }}
+            style={{ background: 'var(--accent)' }}
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
@@ -71,17 +71,17 @@ export default function ProgressTab() {
       {/* Readiness chart */}
       <div
         className="rounded-2xl p-5"
-        style={{ background: 'rgba(15,32,64,0.7)', border: '1px solid rgba(255,255,255,0.07)' }}
+        style={{ background: 'var(--surface)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-card)' }}
       >
         <div className="flex items-start justify-between mb-4">
           <div>
-            <p className="font-body" style={{ fontSize: 11, color: '#7A8BAD', marginBottom: 4 }}>Readiness Score</p>
+            <p className="font-body" style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 4 }}>Readiness Score</p>
             {isDay1 ? (
-              <p className="font-display" style={{ fontSize: 28, fontWeight: 800, color: '#F0F4FF' }}>—</p>
+              <p className="font-display" style={{ fontSize: 28, fontWeight: 800, color: 'var(--text)' }}>—</p>
             ) : (
-              <p className="font-display" style={{ fontSize: 28, fontWeight: 800, color: '#F0F4FF' }}>
+              <p className="font-display" style={{ fontSize: 28, fontWeight: 800, color: 'var(--text)' }}>
                 {readiness}
-                <span style={{ fontSize: 14, color: '#7A8BAD', fontWeight: 400 }}>/100</span>
+                <span style={{ fontSize: 14, color: 'var(--muted)', fontWeight: 400 }}>/100</span>
               </p>
             )}
           </div>
@@ -90,12 +90,12 @@ export default function ProgressTab() {
         {isDay1 ? (
           <div
             className="rounded-xl flex flex-col items-center justify-center py-8 gap-2"
-            style={{ border: '1.5px dashed rgba(79,110,247,0.25)', background: 'rgba(79,110,247,0.04)' }}
+            style={{ border: '1.5px dashed var(--border2)', background: 'var(--surface2)' }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4F6EF7" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--subtle)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.7 }}>
               <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
             </svg>
-            <p className="font-body text-center" style={{ fontSize: 12, color: '#4F6EF7', opacity: 0.7 }}>
+            <p className="font-body text-center" style={{ fontSize: 12, color: 'var(--muted)' }}>
               Your score graph starts after<br />your first drill
             </p>
           </div>
@@ -105,7 +105,7 @@ export default function ProgressTab() {
               <motion.div
                 key={i}
                 className="flex-1 rounded-sm"
-                style={{ background: i === historyScores.length - 1 ? '#4F6EF7' : 'rgba(79,110,247,0.3)', transformOrigin: 'bottom' }}
+                style={{ background: i === historyScores.length - 1 ? 'var(--accent)' : 'var(--accent-bg)', transformOrigin: 'bottom' }}
                 initial={{ scaleY: 0 }}
                 animate={{ scaleY: 1 }}
                 transition={{ delay: 0.1 + i * 0.05, type: 'spring', stiffness: 200, damping: 20 }}
@@ -119,11 +119,11 @@ export default function ProgressTab() {
 
       {/* Milestone journey */}
       <div>
-        <p className="font-body uppercase tracking-widest mb-3" style={{ fontSize: 9, color: '#7A8BAD', letterSpacing: '0.1em' }}>
+        <p className="font-body uppercase tracking-widest mb-3" style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em' }}>
           Milestones
         </p>
         <div className="flex flex-col gap-3 relative">
-          <div className="absolute left-[15px] top-4 bottom-4 w-px" style={{ background: 'rgba(255,255,255,0.07)' }} />
+          <div className="absolute left-[15px] top-4 bottom-4 w-px" style={{ background: 'var(--border2)' }} />
           {MILESTONES.map((m, i) => {
             const reached = currentDay >= m.day;
             return (
@@ -136,26 +136,26 @@ export default function ProgressTab() {
               >
                 <div
                   className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 relative z-10"
-                  style={{ background: reached ? 'rgba(79,110,247,0.2)' : 'rgba(255,255,255,0.05)', border: `1.5px solid ${reached ? '#4F6EF7' : 'rgba(255,255,255,0.1)'}` }}
+                  style={{ background: reached ? 'var(--accent-bg)' : 'var(--surface2)', border: `1.5px solid ${reached ? 'var(--accent)' : 'var(--border2)'}` }}
                 >
                   {reached ? (
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M2.5 6l2.5 2.5 4.5-4.5" stroke="#4F6EF7" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M2.5 6l2.5 2.5 4.5-4.5" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   ) : (
-                    <span className="font-display font-bold" style={{ fontSize: 9, color: '#7A8BAD' }}>{m.day}</span>
+                    <span className="font-display font-bold" style={{ fontSize: 9, color: 'var(--muted)' }}>{m.day}</span>
                   )}
                 </div>
                 <div className="flex-1 pb-1">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <p className="font-display font-bold" style={{ fontSize: 13, color: reached ? '#F0F4FF' : '#7A8BAD' }}>
+                    <p className="font-display font-bold" style={{ fontSize: 13, color: reached ? 'var(--text)' : 'var(--muted)' }}>
                       {m.label}
                     </p>
                     {!reached && (
-                      <span className="font-body" style={{ fontSize: 10, color: '#4A5A7A' }}>Day {m.day}</span>
+                      <span className="font-body" style={{ fontSize: 10, color: 'var(--subtle)' }}>Day {m.day}</span>
                     )}
                   </div>
-                  <p className="font-body" style={{ fontSize: 12, color: '#7A8BAD', lineHeight: 1.5 }}>
+                  <p className="font-body" style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5 }}>
                     {m.description}
                   </p>
                 </div>
@@ -169,12 +169,12 @@ export default function ProgressTab() {
       {isDay1 && (
         <div
           className="rounded-2xl p-4 flex items-center gap-3"
-          style={{ background: 'linear-gradient(135deg, rgba(79,110,247,0.12) 0%, rgba(15,32,64,0.8) 100%)', border: '1px solid rgba(79,110,247,0.2)' }}
+          style={{ background: 'var(--accent-bg)', border: '1px solid rgba(255,92,53,0.2)' }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7B96FF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
           </svg>
-          <p className="font-body" style={{ fontSize: 13, color: '#B8C8E8', flex: 1 }}>
+          <p className="font-body" style={{ fontSize: 13, color: 'var(--accent-text)', flex: 1 }}>
             Complete today's stack to unlock your first score.
           </p>
         </div>

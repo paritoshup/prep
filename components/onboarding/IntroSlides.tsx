@@ -51,7 +51,7 @@ export default function IntroSlides({ onComplete }: IntroSlidesProps) {
   return (
     <motion.div
       className="fixed inset-0 z-50 flex flex-col shell-fixed"
-      style={{ background: 'linear-gradient(160deg, #080F1E 0%, #0A1628 50%, #0D1E3A 100%)' }}
+      style={{ background: 'var(--bg)' }}
       onClick={slide.cta ? undefined : advance}
     >
       {/* Ambient glow */}
@@ -60,7 +60,7 @@ export default function IntroSlides({ onComplete }: IntroSlidesProps) {
       {/* Top bar */}
       <div className="relative flex items-center justify-between px-6 pt-14 pb-0">
         {/* Wordmark */}
-        <span className="font-display font-bold" style={{ fontSize: 15, color: '#4F6EF7', letterSpacing: '0.02em' }}>
+        <span className="font-display font-bold" style={{ fontSize: 15, color: 'var(--accent)', letterSpacing: '0.02em' }}>
           prep
         </span>
 
@@ -71,7 +71,7 @@ export default function IntroSlides({ onComplete }: IntroSlidesProps) {
               key={i}
               animate={{
                 width: i === index ? 20 : 6,
-                background: i <= index ? '#4F6EF7' : 'rgba(255,255,255,0.15)',
+                background: i <= index ? 'var(--accent)' : 'var(--surface2)',
               }}
               className="h-1.5 rounded-full"
               transition={{ duration: 0.3 }}
@@ -83,7 +83,7 @@ export default function IntroSlides({ onComplete }: IntroSlidesProps) {
         <button
           onClick={e => { e.stopPropagation(); finish(); }}
           className="font-body cursor-pointer"
-          style={{ fontSize: 13, color: 'rgba(122,139,173,0.6)' }}
+          style={{ fontSize: 13, color: 'var(--muted)' }}
         >
           Skip
         </button>
@@ -103,13 +103,13 @@ export default function IntroSlides({ onComplete }: IntroSlidesProps) {
             {/* Headline */}
             <h1
               className="font-display whitespace-pre-line mb-4"
-              style={{ fontSize: 34, fontWeight: 800, color: '#F0F4FF', lineHeight: 1.2, letterSpacing: '-0.01em' }}
+              style={{ fontSize: 34, fontWeight: 800, color: 'var(--text)', lineHeight: 1.2, letterSpacing: '-0.02em' }}
             >
               {slide.headline}
             </h1>
 
             {/* Subline */}
-            <p className="font-body mb-10" style={{ fontSize: 15, color: '#7A8BAD', lineHeight: 1.6 }}>
+            <p className="font-body mb-10" style={{ fontSize: 15, color: 'var(--muted)', lineHeight: 1.6 }}>
               {slide.sub}
             </p>
 
@@ -121,11 +121,11 @@ export default function IntroSlides({ onComplete }: IntroSlidesProps) {
                 className="w-full font-display font-bold text-white cursor-pointer"
                 style={{
                   height: 54,
-                  background: 'linear-gradient(135deg, #4F6EF7 0%, #6B84FF 100%)',
-                  borderRadius: 100,
-                  fontSize: 16,
+                  background: 'var(--accent)',
+                  borderRadius: 14,
+                  fontSize: 15,
                   fontWeight: 700,
-                  boxShadow: '0 4px 32px rgba(79,110,247,0.4)',
+                  boxShadow: '0 4px 14px rgba(255,92,53,0.3)',
                 }}
               >
                 Get started →

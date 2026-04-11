@@ -3,19 +3,11 @@
 import { motion } from 'framer-motion';
 import type { Drill } from '@/lib/mockData';
 
-const TYPE_COLORS: Record<string, string> = {
-  accent: '#7B96FF',
-  amber:  '#F6B84B',
-  green:  '#4ADE80',
-};
-
-function Chevron() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path d="M6 4l4 4-4 4" stroke="#7A8BAD" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
+const BADGE_STYLES = [
+  { bg: 'var(--accent-bg)', color: 'var(--accent-text)' },
+  { bg: 'var(--blue-bg)',   color: 'var(--blue-text)' },
+  { bg: 'var(--green-bg)',  color: 'var(--green-text)' },
+];
 
 interface DrillCardProps {
   drill: Drill;
@@ -24,64 +16,55 @@ interface DrillCardProps {
   completed?: boolean;
 }
 
-export default function DrillCard({ drill, index, unified = false, completed = false }: DrillCardProps) {
-  const typeColor = TYPE_COLORS[drill.meta.color] ?? '#7B96FF';
+export default function DrillCard({ drill, index, completed = false }: DrillCardProps) {
+  const badge = BADGE_STYLES[index % 3];
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.08, duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
+      transition={{ delay: index * 0.06, duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
       whileTap={{ scale: 0.985 }}
       className="flex items-start gap-3 p-4 cursor-pointer"
-      style={{ opacity: completed ? 0.6 : 1, ...(unified ? {} : {
-        background: 'rgba(15,32,64,0.7)',
-        border: '1px solid rgba(79,110,247,0.22)',
-        borderRadius: 16,
-        backdropFilter: 'blur(8px)',
-      }) }}
+      style={{ opacity: completed ? 0.5 : 1 }}
     >
-      {/* Step badge */}
+      {/* Number badge */}
       <div
-        className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
+        className="flex items-center justify-center shrink-0 mt-0.5"
         style={{
-          background: completed ? 'rgba(34,197,94,0.12)' : 'rgba(79,110,247,0.14)',
-          border: `1px solid ${completed ? 'rgba(34,197,94,0.3)' : 'rgba(79,110,247,0.25)'}`,
+          width: 36,
+          height: 36,
+          borderRadius: 10,
+          background: completed ? 'var(--green-bg)' : badge.bg,
         }}
       >
         {completed ? (
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <path d="M2.5 6.5l3 3 5-5" stroke="#4ADE80" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2.5 7l3 3 6-6" stroke="var(--green-text)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         ) : (
-          <span className="font-display font-bold text-sm leading-none" style={{ color: '#7B96FF' }}>
+          <span className="font-display" style={{ fontSize: 14, fontWeight: 800, color: badge.color }}>
             {index + 1}
           </span>
         )}
       </div>
 
-      {/* Drill info */}
-      <div className="flex-1">
-        <p className="font-body uppercase tracking-widest leading-none mb-1.5" style={{ fontSize: 9, color: '#7A8BAD', letterSpacing: '0.1em' }}>
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        <p className="font-body uppercase tracking-widest mb-1" style={{ fontSize: 10, color: 'var(--muted)', letterSpacing: '0.07em', fontWeight: 500 }}>
           {drill.type}
         </p>
-        <p className="font-display leading-snug mb-1" style={{ fontSize: 14, fontWeight: 600, color: '#F0F4FF' }}>
+        <p className="font-display leading-snug mb-1.5" style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>
           {drill.name}
         </p>
-        <p className="font-body leading-snug mb-2" style={{ fontSize: 12, color: '#7A8BAD' }}>
-          {drill.description}
-        </p>
         <div className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: typeColor }} />
-          <span className="font-body text-xs" style={{ color: '#7A8BAD' }}>
+          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: completed ? 'var(--green)' : badge.color }} />
+          <span className="font-body" style={{ fontSize: 11, color: 'var(--muted)' }}>
             {drill.meta.mode} · {drill.meta.duration}
           </span>
         </div>
       </div>
 
-      <div className="mt-1 shrink-0">
-        <Chevron />
-      </div>
     </motion.div>
   );
 }

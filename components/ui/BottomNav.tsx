@@ -1,8 +1,8 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import type { NavTab } from '@/lib/mockData';
 
-/* ─── Icons ──────────────────────────────────────────────────────── */
 function TodayIcon({ active }: { active: boolean }) {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
@@ -11,7 +11,7 @@ function TodayIcon({ active }: { active: boolean }) {
         stroke="currentColor"
         strokeWidth={active ? '2' : '1.6'}
         fill={active ? 'currentColor' : 'none'}
-        fillOpacity={active ? 0.2 : 0}
+        fillOpacity={active ? 0.25 : 0}
       />
     </svg>
   );
@@ -37,7 +37,6 @@ function ProfileIcon({ active }: { active: boolean }) {
   );
 }
 
-/* ─── Tab config (3 tabs) ────────────────────────────────────────── */
 export type AppTab = 'today' | 'progress' | 'profile';
 
 const TABS: { id: AppTab; label: string; Icon: React.FC<{ active: boolean }> }[] = [
@@ -56,39 +55,40 @@ export default function BottomNav({ active, onChange }: BottomNavProps) {
     <nav
       className="fixed bottom-0 left-0 right-0 shell-fixed"
       style={{
-        background: 'rgba(8,15,30,0.94)',
-        borderTop: '1px solid rgba(255,255,255,0.07)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
+        background: 'var(--surface)',
+        borderTop: '1px solid var(--border)',
       }}
     >
-      <div className="max-w-[390px] mx-auto flex items-center justify-around pb-safe pt-2 px-3">
+      <div className="max-w-[390px] mx-auto flex items-center justify-around pb-safe pt-1.5 px-3">
         {TABS.map(({ id, label, Icon }) => {
           const isActive = active === id;
           return (
-            <button
+            <motion.button
               key={id}
               onClick={() => onChange(id)}
-              className="relative flex flex-col items-center gap-1 py-1.5 px-4 min-w-[44px] min-h-[44px] justify-center cursor-pointer transition-all duration-200 rounded-2xl"
-              style={{
-                color: isActive ? '#F0F4FF' : '#7A8BAD',
-                background: isActive ? 'rgba(79,110,247,0.15)' : 'transparent',
-              }}
+              whileTap={{ scale: 0.88 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+              className="relative flex flex-col items-center gap-0.5 px-5 min-w-[44px] min-h-[44px] justify-center cursor-pointer"
+              style={{ color: isActive ? 'var(--accent)' : 'var(--subtle)' }}
               aria-label={label}
               aria-current={isActive ? 'page' : undefined}
             >
-              <Icon active={isActive} />
+              {isActive && (
+                <motion.div
+                  layoutId="nav-pill"
+                  className="absolute inset-x-1 top-1 bottom-1 rounded-2xl"
+                  style={{ background: 'var(--accent-bg)' }}
+                  transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                />
+              )}
+              <span className="relative z-10"><Icon active={isActive} /></span>
               <span
-                className="font-body leading-none"
-                style={{
-                  fontSize: 10,
-                  color: isActive ? '#7B96FF' : '#7A8BAD',
-                  fontWeight: isActive ? 600 : 400,
-                }}
+                className="relative z-10 font-body leading-none"
+                style={{ fontSize: 10, fontWeight: isActive ? 500 : 400 }}
               >
                 {label}
               </span>
-            </button>
+            </motion.button>
           );
         })}
       </div>
